@@ -1,8 +1,8 @@
+import * as dotenv from "dotenv";
+dotenv.config();
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import * as dotenv from "dotenv";
-
-dotenv.config();
+import "hardhat-gas-reporter";
 
 const CELO_SEPOLIA_RPC =
   process.env.CELO_SEPOLIA_RPC || "https://forno.celo-testnet.org";
@@ -15,6 +15,14 @@ const config: HardhatUserConfig = {
       optimizer: { enabled: true, runs: 200 },
     },
   },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS ? true : false,
+    currency: "USD",
+    // Set token for price conversion (requires CMC API key below)
+    token: "CELO",
+    etherscan: process.env.ETHERSCAN_API_KEY || "",
+    coinmarketcap: process.env.CMC_API_KEY || undefined,
+  },
   networks: {
     celo_sepolia: {
       chainId: 11142220,
@@ -23,10 +31,7 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: {
-      celo: process.env.CELOSCAN_API_KEY || "",
-      celo_sepolia: process.env.CELOSCAN_API_KEY || "",
-    },
+    apiKey: process.env.ETHERSCAN_API_KEY || "",
     customChains: [
       {
         network: "celo",
