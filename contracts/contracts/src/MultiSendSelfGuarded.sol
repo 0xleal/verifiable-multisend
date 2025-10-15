@@ -34,6 +34,8 @@ contract MultiSendSelfGuarded is SelfVerificationRoot, ReentrancyGuard {
         verificationConfigId = humanOnlyConfigId;
     }
 
+    receive() external payable {}
+
     function _forwardVerify(
         bytes calldata proofPayload,
         bytes memory userContextData

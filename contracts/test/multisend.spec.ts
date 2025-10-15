@@ -119,11 +119,11 @@ describe("MultiSendSelfGuarded", () => {
       amounts
     );
 
-    // Force-fund the contract with the total ETH
-    const ForceSend = await ethers.getContractFactory("ForceSend");
-    const force = await ForceSend.deploy({ value: total });
-    await force.waitForDeployment();
-    await force.boom(await multisend.getAddress());
+    // Fund the contract with the total ETH
+    await sender.sendTransaction({
+      to: await multisend.getAddress(),
+      value: total,
+    });
 
     const bal1Before = await ethers.provider.getBalance(r1.address);
     const bal2Before = await ethers.provider.getBalance(r2.address);
@@ -154,10 +154,10 @@ describe("MultiSendSelfGuarded", () => {
       amounts
     );
     // Fund
-    const ForceSend = await ethers.getContractFactory("ForceSend");
-    const force = await ForceSend.deploy({ value: total });
-    await force.waitForDeployment();
-    await force.boom(await multisend.getAddress());
+    await sender.sendTransaction({
+      to: await multisend.getAddress(),
+      value: total,
+    });
 
     await expect(
       multisend.connect(hub).trigger(userData)

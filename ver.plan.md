@@ -1,5 +1,7 @@
 # Verifiable Multisend (Celo Sepolia) — Next.js + Hardhat + Self.xyz
 
+Disclaimer: This is a AI generated plan for implementation. It is not meant to be a strict guide into how to do it as each step will be implemented separately with human oversight and tweaks to the code.
+
 ## Architecture
 
 - Monorepo layout
