@@ -180,6 +180,7 @@ contract MultiSendSelfGuarded is SelfVerificationRoot, ReentrancyGuard {
             uint256 sent;
             for (uint256 i = 0; i < recipients.length; i++) {
                 address payable to = payable(recipients[i]);
+                if (to == address(0)) revert ZeroAddress();
                 uint256 amt = amounts[i];
                 sent += amt;
                 (bool ok, ) = to.call{value: amt}("");

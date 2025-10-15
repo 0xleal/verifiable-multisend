@@ -4,7 +4,9 @@ import { ethers } from "hardhat";
 describe("MultiSendSelfGuarded", () => {
   async function deploy() {
     const [deployer, hub, sender, r1, r2] = await ethers.getSigners();
-    const MultiSend = await ethers.getContractFactory("MultiSendSelfGuarded");
+    const MultiSend = await ethers.getContractFactory(
+      "TestableMultiSendSelfGuarded"
+    );
     const multisend = await MultiSend.deploy(
       hub.address,
       "multisend-test",
@@ -71,7 +73,7 @@ describe("MultiSendSelfGuarded", () => {
       amounts
     );
 
-    await expect(multisend.connect(hub).onVerificationSuccess("0x", userData))
+    await expect(multisend.connect(hub).trigger(userData))
       .to.emit(multisend, "BatchSent")
       .withArgs(
         sender.address,
@@ -103,7 +105,7 @@ describe("MultiSendSelfGuarded", () => {
       amounts
     );
     await expect(
-      multisend.connect(hub).onVerificationSuccess("0x", userData)
+      multisend.connect(hub).trigger(userData)
     ).to.be.revertedWithCustomError(multisend, "TooManyRecipients");
   });
 
@@ -126,7 +128,7 @@ describe("MultiSendSelfGuarded", () => {
     const bal1Before = await ethers.provider.getBalance(r1.address);
     const bal2Before = await ethers.provider.getBalance(r2.address);
 
-    await expect(multisend.connect(hub).onVerificationSuccess("0x", userData))
+    await expect(multisend.connect(hub).trigger(userData))
       .to.emit(multisend, "BatchSent")
       .withArgs(
         sender.address,
@@ -158,7 +160,7 @@ describe("MultiSendSelfGuarded", () => {
     await force.boom(await multisend.getAddress());
 
     await expect(
-      multisend.connect(hub).onVerificationSuccess("0x", userData)
+      multisend.connect(hub).trigger(userData)
     ).to.be.revertedWithCustomError(multisend, "ZeroAddress");
   });
 });
