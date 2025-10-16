@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -21,7 +21,13 @@ import {
   AlertCircle,
   ExternalLink,
 } from "lucide-react";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { formatEther, parseEther } from "viem";
+import { SelfVerifiedDropAbi } from "@/lib/contracts/self-verified-drop-abi";
+import { useEffect } from "react";
+import { countries, SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
+
+// NOTE: We build the Self app config once per address/scope and pass it to SelfQRcodeWrapper
 import type { RecipientData } from "./csv-upload";
 
 interface DistributionExecutorProps {
@@ -42,10 +48,79 @@ export function DistributionExecutor({
   recipients,
 }: DistributionExecutorProps) {
   const { address, isConnected, chain } = useAccount();
+  const { writeContractAsync } = useWriteContract();
   const [tokenAddress, setTokenAddress] = useState("");
   const [isDistributing, setIsDistributing] = useState(false);
   const [transactions, _setTransactions] = useState<TransactionStatus[]>([]);
   const [mode, setMode] = useState<DistributionMode>("individual");
+  const [verifyOpen, setVerifyOpen] = useState(false);
+
+  const contractAddress = process.env
+    .NEXT_PUBLIC_SELF_DROP_ADDRESS as `0x${string}`;
+  const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID || 11142220);
+
+  const { data: scope } = useReadContract({
+    address: contractAddress,
+    abi: SelfVerifiedDropAbi,
+    functionName: "getScope",
+    chainId,
+    query: { enabled: !!contractAddress },
+  } as any);
+
+  const { data: expiresAt } = useReadContract({
+    address: contractAddress,
+    abi: SelfVerifiedDropAbi,
+    functionName: "verificationExpiresAt",
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
+    chainId,
+    query: { enabled: !!contractAddress && !!address },
+  } as any);
+
+  const isVerified = useMemo(() => {
+    if (!expiresAt) return false;
+    const exp = Number(expiresAt as unknown as bigint);
+    return exp > Math.floor(Date.now() / 1000);
+  }, [expiresAt]);
+
+  // Build and cache Self app config (follows docs pattern), bound to current address
+  const [selfApp, setSelfApp] = useState<any | null>(null);
+
+  useEffect(() => {
+    if (!scope) return;
+    const userId =
+      (address as string) || "0x0000000000000000000000000000000000000000";
+    try {
+      const app = new SelfAppBuilder({
+        version: 2,
+        appName:
+          process.env.NEXT_PUBLIC_SELF_APP_NAME || "Verifiable Multisend",
+        scope: String(scope),
+        endpoint: `${process.env.NEXT_PUBLIC_SELF_ENDPOINT || ""}`,
+        userId,
+        endpointType: "staging_celo",
+        userIdType: "hex",
+        userDefinedData: "Sender verification for multisend",
+        disclosures: {
+          minimumAge: 18,
+          ofac: true,
+        },
+      }).build();
+      setSelfApp(app);
+    } catch (e) {
+      console.error("Failed to init Self app", e);
+    }
+  }, [scope, address]);
+
+  const totalEth = useMemo(() => {
+    try {
+      if (recipients.length === 0) return "0";
+      const values = recipients.map((r) => parseEther(r.amount as `${string}`));
+      const sum = values.reduce((a, b) => a + b);
+      return sum.toString();
+    } catch {
+      return "0";
+    }
+  }, [recipients]);
 
   const handleIndividualDistribution = async () => {
     if (!isConnected || !address) {
@@ -74,9 +149,51 @@ export function DistributionExecutor({
       return;
     }
 
-    alert("Batch distribution not implemented yet");
+    if (!isVerified) {
+      setVerifyOpen(true);
+      return;
+    }
 
-    setIsDistributing(false);
+    if (!contractAddress) {
+      alert("Missing contract address configuration");
+      return;
+    }
+
+    try {
+      setIsDistributing(true);
+      const addrs = recipients.map((r) => r.address as `0x${string}`);
+      const amts = recipients.map((r) => parseEther(r.amount as `${string}`));
+      const value = amts.reduce((a, b) => a + b);
+
+      const txHash = await writeContractAsync({
+        address: contractAddress,
+        abi: SelfVerifiedDropAbi,
+        functionName: "airdropETH",
+        args: [addrs, amts],
+        chainId,
+        value,
+      } as any);
+
+      _setTransactions([
+        {
+          address: "batch",
+          amount: formatEther(value),
+          status: "pending",
+          hash: txHash as string,
+        },
+      ]);
+    } catch (e: any) {
+      _setTransactions([
+        {
+          address: "batch",
+          amount: totalEth,
+          status: "error",
+          error: e?.message || "Failed to send batch",
+        },
+      ]);
+    } finally {
+      setIsDistributing(false);
+    }
   };
 
   const handleDistribute = () => {
@@ -254,6 +371,15 @@ export function DistributionExecutor({
           </div>
         )}
 
+        {!isVerified && isConnected && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Sender not verified. Please verify with Self to enable sending.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Button
           onClick={handleDistribute}
           disabled={!isConnected || isDistributing || recipients.length === 0}
@@ -273,6 +399,39 @@ export function DistributionExecutor({
             </>
           )}
         </Button>
+
+        {/* Simple inline modal for Self QR verification */}
+        {verifyOpen && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-background border rounded-lg p-4 w-full max-w-md">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium">Verify with Self</h3>
+                <button
+                  className="text-muted-foreground text-sm"
+                  onClick={() => setVerifyOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+              {selfApp ? (
+                <SelfQRcodeWrapper
+                  selfApp={selfApp}
+                  onSuccess={() => {
+                    // After successful verification (handled by backend via endpoint), close modal
+                    setVerifyOpen(false);
+                  }}
+                  onError={() => {
+                    console.error("Error: Failed to verify identity");
+                  }}
+                />
+              ) : (
+                <div className="p-6 text-sm text-muted-foreground">
+                  Loading QR…
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
