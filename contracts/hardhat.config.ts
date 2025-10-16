@@ -5,7 +5,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-gas-reporter";
 
 const CELO_SEPOLIA_RPC =
-  process.env.CELO_SEPOLIA_RPC || "https://forno.celo-testnet.org";
+  process.env.CELO_SEPOLIA_RPC || "https://forno.celo-sepolia.celo-testnet.org";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 
 const config: HardhatUserConfig = {
