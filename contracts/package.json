@@ -10,7 +10,8 @@
     "build": "hardhat compile",
     "clean": "rimraf cache artifacts",
     "test": "hardhat test",
-    "test:gas": "REPORT_GAS=true hardhat test"
+    "test:gas": "REPORT_GAS=true hardhat test",
+    "demo:celo:sepolia": "hardhat run --network celo_sepolia scripts/demo-multisend.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
