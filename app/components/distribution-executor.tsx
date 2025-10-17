@@ -31,7 +31,7 @@ import {
 import { formatEther, parseEther } from "viem";
 import { SelfVerifiedDropAbi } from "@/lib/contracts/self-verified-drop-abi";
 import { useEffect } from "react";
-import { countries, SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
+import { SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
 import { celoSepolia } from "wagmi/chains";
 
 // NOTE: We build the Self app config once per address/scope and pass it to SelfQRcodeWrapper
@@ -69,7 +69,7 @@ export function DistributionExecutor({
   );
 
   const defaultDropAddress =
-    "0x26b39829C82b0158852d3285A9c86117297ca237" as `0x${string}`;
+    "0xbfbCcB06656d9965bF221eb7e04cec986f4b496F" as `0x${string}`;
   const contractAddress = ((process.env
     .NEXT_PUBLIC_SELF_DROP_ADDRESS as `0x${string}`) ||
     defaultDropAddress) as `0x${string}`;
@@ -83,7 +83,8 @@ export function DistributionExecutor({
   //   query: { enabled: !!contractAddress },
   // } as any);
 
-  const scope = "self-backed-sender";
+  const scope =
+    "13156745186667297036773852622681238864090777546565928820619400293580240103525";
 
   const { data: expiresAt, refetch: refetchExpiresAt } = useReadContract({
     address: contractAddress,
