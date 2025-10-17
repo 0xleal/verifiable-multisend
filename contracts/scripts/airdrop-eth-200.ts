@@ -36,7 +36,7 @@ async function main() {
   ];
 
   // Build 200 entries
-  const targetCount = 200;
+  const targetCount = 500;
   const recipients: string[] = [];
   const amounts: bigint[] = [];
 
@@ -73,6 +73,14 @@ async function main() {
   const Regular = await ethers.getContractFactory("MultiSendETH");
   const regular = Regular.attach(MULTISEND_ETH) as MultiSendETH;
 
+  if (RUN_ONLY === "self" || RUN_ONLY === "both") {
+    console.log("Executing SelfProtectedDrop.airdropETH...");
+    const tx1 = await drop.airdropETH(recipients, amounts, { value: total });
+    const rc1 = await tx1.wait();
+    console.log("SelfProtectedDrop tx:", tx1.hash);
+    console.log("Gas used:", rc1?.gasUsed?.toString());
+  }
+
   if (RUN_ONLY === "regular" || RUN_ONLY === "both") {
     console.log("Executing MultiSendETH.multisendETH...");
     const tx2 = await regular.multisendETH(recipients, amounts, {
@@ -81,14 +89,6 @@ async function main() {
     const rc2 = await tx2.wait();
     console.log("MultiSendETH tx:", tx2.hash);
     console.log("Gas used:", rc2?.gasUsed?.toString());
-  }
-
-  if (RUN_ONLY === "self" || RUN_ONLY === "both") {
-    console.log("Executing SelfProtectedDrop.airdropETH...");
-    const tx1 = await drop.airdropETH(recipients, amounts, { value: total });
-    const rc1 = await tx1.wait();
-    console.log("SelfProtectedDrop tx:", tx1.hash);
-    console.log("Gas used:", rc1?.gasUsed?.toString());
   }
 }
 
