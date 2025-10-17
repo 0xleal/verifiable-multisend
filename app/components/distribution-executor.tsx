@@ -55,9 +55,13 @@ export function DistributionExecutor({
   const [mode, setMode] = useState<DistributionMode>("individual");
   const [verifyOpen, setVerifyOpen] = useState(false);
 
-  const contractAddress = process.env
-    .NEXT_PUBLIC_SELF_DROP_ADDRESS as `0x${string}`;
-  const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID || 11142220);
+  const defaultDropAddress =
+    "0x26b39829C82b0158852d3285A9c86117297ca237" as `0x${string}`;
+  const contractAddress = ((process.env
+    .NEXT_PUBLIC_SELF_DROP_ADDRESS as `0x${string}`) ||
+    defaultDropAddress) as `0x${string}`;
+  const chainId =
+    chain?.id ?? Number(process.env.NEXT_PUBLIC_CHAIN_ID || 44787);
 
   const { data: scope } = useReadContract({
     address: contractAddress,
@@ -86,7 +90,7 @@ export function DistributionExecutor({
   const [selfApp, setSelfApp] = useState<any | null>(null);
 
   useEffect(() => {
-    if (!scope) return;
+    if (!scope || !contractAddress) return;
     const userId =
       (address as string) || "0x0000000000000000000000000000000000000000";
     try {
@@ -95,7 +99,8 @@ export function DistributionExecutor({
         appName:
           process.env.NEXT_PUBLIC_SELF_APP_NAME || "Verifiable Multisend",
         scope: String(scope),
-        endpoint: `${process.env.NEXT_PUBLIC_SELF_ENDPOINT || ""}`,
+        // Point Self to the on-chain contract endpoint (Celo testnet)
+        endpoint: contractAddress,
         userId,
         endpointType: "staging_celo",
         userIdType: "hex",
@@ -109,7 +114,7 @@ export function DistributionExecutor({
     } catch (e) {
       console.error("Failed to init Self app", e);
     }
-  }, [scope, address]);
+  }, [scope, address, contractAddress]);
 
   const totalEth = useMemo(() => {
     try {
