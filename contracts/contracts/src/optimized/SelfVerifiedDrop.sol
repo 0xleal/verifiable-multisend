@@ -55,6 +55,12 @@ contract SelfVerifiedDrop is SelfVerificationRoot, Ownable {
         verificationConfigId = configId;
     }
 
+    /// @notice Overrides the verification scope used by the hub.
+    /// @dev This should be used with caution. Frontend must use a matching scope seed/hash.
+    function setScope(uint256 newScope) external onlyOwner {
+        _scope = newScope;
+    }
+
     // ====================================================
     // SelfVerificationRoot overrides
     // ====================================================

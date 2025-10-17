@@ -11,7 +11,7 @@ async function main() {
   }
 
   const HUB_V2 = "0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74"; // Celo Sepolia Hub V2
-  const SCOPE_SEED = process.env.SELF_SCOPE_SEED || "self-backed-sender";
+  const SCOPE_SEED = "self-backed-sender";
   const CONFIG_ID =
     process.env.SELF_CONFIG_ID ||
     "0x32332b93ed35ffa75a313b4b2f3e096490739747c872307590d30cf7e936483a";
@@ -21,6 +21,7 @@ async function main() {
 
   // 1) Deploy the contract with hub + scope seed
   const Factory = await ethers.getContractFactory("SelfVerifiedDrop");
+  console.log("Scope Seed: ", SCOPE_SEED);
   const contract = await Factory.deploy(HUB_V2, SCOPE_SEED);
   await contract.waitForDeployment();
   const addr = await contract.getAddress();

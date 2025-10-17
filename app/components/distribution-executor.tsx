@@ -69,7 +69,7 @@ export function DistributionExecutor({
   );
 
   const contractAddress =
-    "0x26b39829C82b0158852d3285A9c86117297ca237" as `0x${string}`;
+    "0xC2FE5379a4c096e097d47f760855B85edDF625e2".toLowerCase() as `0x${string}`;
   const chainId = celoSepolia.id;
 
   // const { data: scope } = useReadContract({
@@ -109,7 +109,7 @@ export function DistributionExecutor({
       const app = new SelfAppBuilder({
         version: 2,
         appName: "Verifiable Multisend",
-        scope: scopeSeed,
+        scope: "self-backed-sender",
         // Point Self to the on-chain contract endpoint (Celo testnet)
         endpoint: contractAddress,
         userId,
