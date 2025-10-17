@@ -69,7 +69,7 @@ export function DistributionExecutor({
   );
 
   const defaultDropAddress =
-    "0xbfbCcB06656d9965bF221eb7e04cec986f4b496F" as `0x${string}`;
+    "0x26b39829C82b0158852d3285A9c86117297ca237" as `0x${string}`;
   const contractAddress = ((process.env
     .NEXT_PUBLIC_SELF_DROP_ADDRESS as `0x${string}`) ||
     defaultDropAddress) as `0x${string}`;
@@ -83,8 +83,9 @@ export function DistributionExecutor({
   //   query: { enabled: !!contractAddress },
   // } as any);
 
-  const scope =
-    "13156745186667297036773852622681238864090777546565928820619400293580240103525";
+  // Self frontend expects the short scope seed string, not the on-chain scope hash/uint256
+  const scopeSeed =
+    (process.env.NEXT_PUBLIC_SELF_SCOPE_SEED as string) || "self-backed-sender";
 
   const { data: expiresAt, refetch: refetchExpiresAt } = useReadContract({
     address: contractAddress,
@@ -105,7 +106,7 @@ export function DistributionExecutor({
   const [selfApp, setSelfApp] = useState<any | null>(null);
 
   useEffect(() => {
-    if (!scope || !contractAddress) return;
+    if (!scopeSeed || !contractAddress) return;
     const userId =
       (address as string) || "0x0000000000000000000000000000000000000000";
     try {
@@ -113,7 +114,7 @@ export function DistributionExecutor({
         version: 2,
         appName:
           process.env.NEXT_PUBLIC_SELF_APP_NAME || "Verifiable Multisend",
-        scope: String(scope),
+        scope: scopeSeed,
         // Point Self to the on-chain contract endpoint (Celo testnet)
         endpoint: contractAddress,
         userId,
@@ -129,7 +130,7 @@ export function DistributionExecutor({
     } catch (e) {
       console.error("Failed to init Self app", e);
     }
-  }, [scope, address, contractAddress]);
+  }, [scopeSeed, address, contractAddress]);
 
   const totalEth = useMemo(() => {
     try {
