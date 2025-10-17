@@ -68,11 +68,8 @@ export function DistributionExecutor({
     null
   );
 
-  const defaultDropAddress =
+  const contractAddress =
     "0x26b39829C82b0158852d3285A9c86117297ca237" as `0x${string}`;
-  const contractAddress = ((process.env
-    .NEXT_PUBLIC_SELF_DROP_ADDRESS as `0x${string}`) ||
-    defaultDropAddress) as `0x${string}`;
   const chainId = celoSepolia.id;
 
   // const { data: scope } = useReadContract({
@@ -84,8 +81,7 @@ export function DistributionExecutor({
   // } as any);
 
   // Self frontend expects the short scope seed string, not the on-chain scope hash/uint256
-  const scopeSeed =
-    (process.env.NEXT_PUBLIC_SELF_SCOPE_SEED as string) || "self-backed-sender";
+  const scopeSeed = "self-backed-sender";
 
   const { data: expiresAt, refetch: refetchExpiresAt } = useReadContract({
     address: contractAddress,
@@ -112,8 +108,7 @@ export function DistributionExecutor({
     try {
       const app = new SelfAppBuilder({
         version: 2,
-        appName:
-          process.env.NEXT_PUBLIC_SELF_APP_NAME || "Verifiable Multisend",
+        appName: "Verifiable Multisend",
         scope: scopeSeed,
         // Point Self to the on-chain contract endpoint (Celo testnet)
         endpoint: contractAddress,
