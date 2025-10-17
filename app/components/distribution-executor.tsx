@@ -71,7 +71,10 @@ export function DistributionExecutor({
     query: { enabled: !!contractAddress },
   } as any);
 
-  const { data: expiresAt } = useReadContract({
+  const {
+    data: expiresAt,
+    refetch: refetchExpiresAt,
+  } = useReadContract({
     address: contractAddress,
     abi: SelfVerifiedDropAbi,
     functionName: "verificationExpiresAt",
@@ -423,6 +426,8 @@ export function DistributionExecutor({
                   selfApp={selfApp}
                   onSuccess={() => {
                     // After successful verification (handled by backend via endpoint), close modal
+                    // and refetch verification status
+                    refetchExpiresAt?.();
                     setVerifyOpen(false);
                   }}
                   onError={() => {
