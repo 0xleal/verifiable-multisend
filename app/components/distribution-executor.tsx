@@ -33,6 +33,8 @@ import { SelfVerifiedDropAbi } from "@/lib/contracts/self-verified-drop-abi";
 import { useEffect } from "react";
 import { SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
 import { celoSepolia } from "wagmi/chains";
+import { waitForTransactionReceipt } from "wagmi/actions";
+import { config } from "@/lib/wagmi-config";
 
 // NOTE: We build the Self app config once per address/scope and pass it to SelfQRcodeWrapper
 import type { RecipientData } from "./csv-upload";
@@ -67,6 +69,8 @@ export function DistributionExecutor({
   const [verificationError, setVerificationError] = useState<string | null>(
     null
   );
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successTxHash, setSuccessTxHash] = useState<string | null>(null);
 
   const contractAddress =
     "0xC2FE5379a4c096e097d47f760855B85edDF625e2".toLowerCase() as `0x${string}`;
@@ -180,8 +184,8 @@ export function DistributionExecutor({
       return;
     }
 
+    setIsDistributing(true);
     try {
-      setIsDistributing(true);
       const addrs = recipients.map((r) => r.address as `0x${string}`);
       const amts = recipients.map((r) => parseEther(r.amount as `${string}`));
       const value = amts.reduce((a, b) => a + b);
@@ -203,6 +207,33 @@ export function DistributionExecutor({
           hash: txHash as string,
         },
       ]);
+
+      const receipt = await waitForTransactionReceipt(config, {
+        hash: txHash,
+      });
+
+      if (receipt.status === "success") {
+        _setTransactions([
+          {
+            address: "batch",
+            amount: formatEther(value),
+            status: "success",
+            hash: txHash as string,
+          },
+        ]);
+        setSuccessTxHash(txHash);
+        setShowSuccessModal(true);
+      } else {
+        _setTransactions([
+          {
+            address: "batch",
+            amount: formatEther(value),
+            status: "error",
+            error: "Transaction failed",
+            hash: txHash as string,
+          },
+        ]);
+      }
     } catch (e: any) {
       _setTransactions([
         {
@@ -276,7 +307,7 @@ export function DistributionExecutor({
               disabled={isDistributing}
               className="flex-1"
             >
-              Individual
+              Claim
             </Button>
             <Button
               variant={mode === "batch" ? "default" : "outline"}
@@ -285,7 +316,7 @@ export function DistributionExecutor({
               disabled={isDistributing}
               className="flex-1"
             >
-              Batch (Gas Efficient)
+              Send (Gas Efficient)
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
@@ -501,6 +532,41 @@ export function DistributionExecutor({
                   </>
                 )}
               </CardContent>
+            </Card>
+          </div>
+        )}
+        {/* Transaction Success Modal */}
+        {showSuccessModal && successTxHash && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <Card className="w-full max-w-md">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  Transaction Successful!
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p>Your token distribution has been successfully processed.</p>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold">Transaction Hash:</span>
+                  <a
+                    href={`${chain?.blockExplorers?.default.url}/tx/${successTxHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-mono text-sm truncate"
+                  >
+                    {successTxHash}
+                  </a>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="w-full"
+                >
+                  Close
+                </Button>
+              </CardFooter>
             </Card>
           </div>
         )}
