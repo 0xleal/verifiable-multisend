@@ -1,16 +1,9 @@
 import { http, createConfig } from "wagmi";
-import {
-  mainnet,
-  sepolia,
-  base,
-  baseSepolia,
-  celo,
-  celoAlfajores,
-} from "wagmi/chains";
+import { celoSepolia } from "wagmi/chains";
 import { injected, walletConnect } from "wagmi/connectors";
 
 export const config = createConfig({
-  chains: [mainnet, sepolia, base, baseSepolia, celo, celoAlfajores],
+  chains: [celoSepolia],
   connectors: [
     injected(),
     walletConnect({
@@ -18,11 +11,6 @@ export const config = createConfig({
     }),
   ],
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
-    [base.id]: http(),
-    [baseSepolia.id]: http(),
-    [celo.id]: http(),
-    [celoAlfajores.id]: http(),
+    [celoSepolia.id]: http(),
   },
 });

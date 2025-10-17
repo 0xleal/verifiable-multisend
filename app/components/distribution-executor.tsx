@@ -20,12 +20,19 @@ import {
   Loader2,
   AlertCircle,
   ExternalLink,
+  ShieldCheck,
 } from "lucide-react";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useReadContract,
+  useWriteContract,
+  useSwitchChain,
+} from "wagmi";
 import { formatEther, parseEther } from "viem";
 import { SelfVerifiedDropAbi } from "@/lib/contracts/self-verified-drop-abi";
 import { useEffect } from "react";
 import { countries, SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
+import { celoSepolia } from "wagmi/chains";
 
 // NOTE: We build the Self app config once per address/scope and pass it to SelfQRcodeWrapper
 import type { RecipientData } from "./csv-upload";
@@ -49,32 +56,36 @@ export function DistributionExecutor({
 }: DistributionExecutorProps) {
   const { address, isConnected, chain } = useAccount();
   const { writeContractAsync } = useWriteContract();
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
+
   const [tokenAddress, setTokenAddress] = useState("");
   const [isDistributing, setIsDistributing] = useState(false);
   const [transactions, _setTransactions] = useState<TransactionStatus[]>([]);
   const [mode, setMode] = useState<DistributionMode>("individual");
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(
+    null
+  );
 
   const defaultDropAddress =
     "0x26b39829C82b0158852d3285A9c86117297ca237" as `0x${string}`;
   const contractAddress = ((process.env
     .NEXT_PUBLIC_SELF_DROP_ADDRESS as `0x${string}`) ||
     defaultDropAddress) as `0x${string}`;
-  const chainId =
-    chain?.id ?? Number(process.env.NEXT_PUBLIC_CHAIN_ID || 44787);
+  const chainId = celoSepolia.id;
 
-  const { data: scope } = useReadContract({
-    address: contractAddress,
-    abi: SelfVerifiedDropAbi,
-    functionName: "getScope",
-    chainId,
-    query: { enabled: !!contractAddress },
-  } as any);
+  // const { data: scope } = useReadContract({
+  //   address: contractAddress,
+  //   abi: SelfVerifiedDropAbi,
+  //   functionName: "getScope",
+  //   chainId,
+  //   query: { enabled: !!contractAddress },
+  // } as any);
 
-  const {
-    data: expiresAt,
-    refetch: refetchExpiresAt,
-  } = useReadContract({
+  const scope = "self-backed-sender";
+
+  const { data: expiresAt, refetch: refetchExpiresAt } = useReadContract({
     address: contractAddress,
     abi: SelfVerifiedDropAbi,
     functionName: "verificationExpiresAt",
@@ -147,8 +158,13 @@ export function DistributionExecutor({
   };
 
   const handleBatchDistribution = async () => {
-    if (!isConnected || !address || !chain) {
+    if (!isConnected || !address) {
       alert("Please connect your wallet first");
+      return;
+    }
+
+    if (!chain || chain.id !== celoSepolia.id) {
+      switchChain?.({ chainId: celoSepolia.id });
       return;
     }
 
@@ -248,7 +264,7 @@ export function DistributionExecutor({
           />
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
-              Leave empty to distribute native tokens (ETH)
+              Leave empty to distribute native tokens (CELO)
             </p>
           </div>
         </div>
@@ -390,14 +406,19 @@ export function DistributionExecutor({
 
         <Button
           onClick={handleDistribute}
-          disabled={!isConnected || isDistributing || recipients.length === 0}
+          disabled={
+            !isConnected ||
+            isDistributing ||
+            isSwitchingChain ||
+            recipients.length === 0
+          }
           className="w-full"
           size="lg"
         >
-          {isDistributing ? (
+          {isDistributing || isSwitchingChain ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Distributing...
+              {isSwitchingChain ? "Switching network..." : "Distributing..."}
             </>
           ) : (
             <>
@@ -408,38 +429,82 @@ export function DistributionExecutor({
           )}
         </Button>
 
-        {/* Simple inline modal for Self QR verification */}
+        {/* Verification Modal */}
         {verifyOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-background border rounded-lg p-4 w-full max-w-md">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium">Verify with Self</h3>
-                <button
-                  className="text-muted-foreground text-sm"
-                  onClick={() => setVerifyOpen(false)}
-                >
-                  Close
-                </button>
-              </div>
-              {selfApp ? (
-                <SelfQRcodeWrapper
-                  selfApp={selfApp}
-                  onSuccess={() => {
-                    // After successful verification (handled by backend via endpoint), close modal
-                    // and refetch verification status
-                    refetchExpiresAt?.();
-                    setVerifyOpen(false);
-                  }}
-                  onError={() => {
-                    console.error("Error: Failed to verify identity");
-                  }}
-                />
-              ) : (
-                <div className="p-6 text-sm text-muted-foreground">
-                  Loading QR…
-                </div>
-              )}
-            </div>
+            <Card className="w-full max-w-md">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-primary" />
+                  Verify Your Identity
+                </CardTitle>
+                <CardDescription>
+                  To ensure the security of this platform, we require a one-time
+                  verification of your identity using the Self app.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {verificationSuccess ? (
+                  <div className="flex flex-col items-center justify-center text-center p-8">
+                    <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
+                    <h3 className="text-lg font-semibold">
+                      Verification Successful!
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      You can now proceed with the token distribution.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {selfApp ? (
+                      <>
+                        <p className="text-sm text-muted-foreground">
+                          Scan this QR code with your Self app to verify your
+                          identity on-chain. This is required once every 30 days
+                          to enable token distribution. You can download Self{" "}
+                          <a href="https://self.xyz" target="_blank">
+                            here
+                          </a>
+                          .
+                        </p>
+                        <SelfQRcodeWrapper
+                          selfApp={selfApp}
+                          onSuccess={() => {
+                            setVerificationSuccess(true);
+                            setTimeout(() => {
+                              refetchExpiresAt?.();
+                              setVerifyOpen(false);
+                              setVerificationSuccess(false); // Reset for next time
+                            }, 2000);
+                          }}
+                          onError={(error) => {
+                            console.error(
+                              "Error: Failed to verify identity",
+                              error
+                            );
+                            setVerificationError(
+                              "Verification failed. Please try again."
+                            );
+                          }}
+                        />
+                      </>
+                    ) : (
+                      <div className="flex items-center justify-center p-6 text-sm text-muted-foreground">
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Loading QR Code...
+                      </div>
+                    )}
+
+                    {verificationError && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>{verificationError}</AlertDescription>
+                      </Alert>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
           </div>
         )}
       </CardContent>

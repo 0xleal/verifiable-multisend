@@ -70,7 +70,11 @@ export function DistributionPreview({ recipients }: DistributionPreviewProps) {
             {isMockData ? (
               <Skeleton className="w-10 h-5 bg-muted" />
             ) : (
-              <Badge variant="secondary">{totalAmount.toLocaleString()}</Badge>
+              <Badge variant="secondary">
+                {totalAmount.toLocaleString(undefined, {
+                  maximumFractionDigits: 18,
+                })}
+              </Badge>
             )}
           </div>
         </div>
@@ -99,7 +103,7 @@ export function DistributionPreview({ recipients }: DistributionPreviewProps) {
                       {recipient.address}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {Number(recipient.amount).toLocaleString()}
+                      {recipient.amount}
                     </TableCell>
                   </TableRow>
                 ))
