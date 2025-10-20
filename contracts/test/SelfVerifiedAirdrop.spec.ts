@@ -170,7 +170,7 @@ describe("SelfVerifiedAirdrop", () => {
       .connect(claimer1)
       .claim(airdropId, 0, leaves[0].amount, proof1);
     const receipt = await tx.wait();
-    const gasUsed = receipt.gasUsed * receipt.gasPrice;
+    const gasUsed = receipt ? receipt.gasUsed * receipt.gasPrice : 0n;
     const balanceAfter = await ethers.provider.getBalance(claimer1.address);
 
     expect(balanceAfter - balanceBefore + gasUsed).to.equal(leaves[0].amount);
