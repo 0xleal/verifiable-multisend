@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       "@react-native-async-storage/async-storage": false,
     };
     config.externals.push("pino-pretty", "encoding");
+    config.externals.push("web-worker", "commonjs web-worker");
+
     return config;
   },
 };
