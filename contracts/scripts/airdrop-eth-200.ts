@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { ethers } from "hardhat";
-import { MultiSendETH, SelfProtectedDrop } from "../typechain-types";
+import { SelfProtectedDrop } from "../typechain-types";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -10,11 +10,8 @@ async function main() {
 
   // Deployed contract addresses provided by user
   const SELF_PROTECTED_DROP = "0x4275854fDEF5EE848a2F9F9e10f17119E285A498";
-  const MULTISEND_ETH = "0x8F94D7a05A4288c4D3C211eA285c7d0649A295Bd";
 
   // Controls
-  // RUN_ONLY: "self" | "regular" | "both"
-  const RUN_ONLY = (process.env.RUN_ONLY || "both").toLowerCase();
   // UNIQUE_ADDR: set to "1" to use 200 generated unique addresses instead of repeating the 14
   const USE_UNIQUE_ADDRESSES = true;
 
@@ -70,26 +67,12 @@ async function main() {
   // Attach to deployed contracts
   const Drop = await ethers.getContractFactory("SelfProtectedDrop");
   const drop = Drop.attach(SELF_PROTECTED_DROP) as SelfProtectedDrop;
-  const Regular = await ethers.getContractFactory("MultiSendETH");
-  const regular = Regular.attach(MULTISEND_ETH) as MultiSendETH;
 
-  if (RUN_ONLY === "self" || RUN_ONLY === "both") {
-    console.log("Executing SelfProtectedDrop.airdropETH...");
-    const tx1 = await drop.airdropETH(recipients, amounts, { value: total });
-    const rc1 = await tx1.wait();
-    console.log("SelfProtectedDrop tx:", tx1.hash);
-    console.log("Gas used:", rc1?.gasUsed?.toString());
-  }
-
-  if (RUN_ONLY === "regular" || RUN_ONLY === "both") {
-    console.log("Executing MultiSendETH.multisendETH...");
-    const tx2 = await regular.multisendETH(recipients, amounts, {
-      value: total,
-    });
-    const rc2 = await tx2.wait();
-    console.log("MultiSendETH tx:", tx2.hash);
-    console.log("Gas used:", rc2?.gasUsed?.toString());
-  }
+  console.log("Executing SelfProtectedDrop.airdropETH...");
+  const tx1 = await drop.airdropETH(recipients, amounts, { value: total });
+  const rc1 = await tx1.wait();
+  console.log("SelfProtectedDrop tx:", tx1.hash);
+  console.log("Gas used:", rc1?.gasUsed?.toString());
 }
 
 main().catch((error) => {
