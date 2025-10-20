@@ -9,8 +9,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Token Distributor",
-  description: "Distribute tokens to humans from humans via Self.xyz",
+  title: "HumanPay - Compliant Cross-Border Payments",
+  description: "Send crypto payments globally while maintaining regulatory compliance. Zero-knowledge verification, instant settlement, 70% cheaper than wire transfers.",
   generator: "v0.app",
 };
 
