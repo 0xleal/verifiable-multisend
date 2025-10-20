@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {Airdrop} from "../src/self-example/Airdrop.sol";
+import {Airdrop} from "../src/Airdrop.sol";
 import {ISelfVerificationRoot} from "@selfxyz/contracts/contracts/interfaces/ISelfVerificationRoot.sol";
 
 contract TestableAirdrop is Airdrop {

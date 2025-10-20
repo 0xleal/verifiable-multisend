@@ -2,125 +2,71 @@
 
 This document details the intent, setup, and coverage of the tests under `contracts/test`.
 
-- **Suites covered**: `MultiSendSelfGuarded` and `ClaimDropSelf`
-- **Approach**: We simulate the Self verification success hook via small test-only wrapper contracts that expose a `trigger(bytes)` method, which internally calls the production `customVerificationHook(...)`. This lets us deterministically drive the hook logic inside tests without depending on external infrastructure.
+- **Suites covered**: `Airdrop` and `SelfProtectedDrop`.
+- **Approach**: For the `Airdrop` contract, we simulate the Self verification success hook via a small test-only wrapper contract that exposes a `trigger(bytes)` method, which internally calls the production `customVerificationHook(...)`. This lets us deterministically drive the hook logic inside tests without depending on external infrastructure. `SelfProtectedDrop` is tested directly.
 
 ### Common scaffolding and conventions
 
-- **Network**: Hardhat local network; chain id `31337` is embedded in test-generated `userData` to mimic the real scope hashing.
-- **Actors**: Signers are used consistently per suite (e.g., `hub` represents the verification hub invoker; `sender`/`owner`/`claimer`/`recipients` are scenario-dependent).
+- **Network**: Hardhat local network; chain id `31337` is embedded in test-generated `userData` to mimic the real scope hashing for the `Airdrop` test.
+- **Actors**: Signers are used consistently per suite (e.g., `hub` represents the verification hub invoker; `sender`/`owner`/`user`/`recipients` are scenario-dependent).
 - **ERC20**: A simple `TestERC20` is used for minting and transfers during tests.
-- **Hook invocation**: We call `trigger(userData)` from the `hub` signer on the testable wrappers. In production, the Self Hub would call the hook; the wrapper is only for testing.
-- **`userData` layout (by test builders)**:
-  - Type `1`: ERC20 multisend payload
-  - Type `2`: Native (ETH) multisend payload
-  - Type `3`: Claim drop payout payload
+- **Hook invocation**: For `Airdrop`, we call `trigger(userData)` from the `hub` signer on the testable wrapper. In production, the Self Hub would call the hook; the wrapper is only for testing.
 
 ---
 
-## MultiSendSelfGuarded tests
+## Airdrop tests
 
-File: `contracts/test/multisend.spec.ts`
+File: `contracts/test/Airdrop.ts`
 
 ### Setup
 
 - **Deployments**:
-
-  - `TestableMultiSendSelfGuarded(hub, scopeSeed, humanOnlyConfigId)` where:
-    - `scopeSeed` is a test string (e.g., `"multisend-test"`).
-    - `humanOnlyConfigId` is `keccak256("human-only-config")` (arbitrary stable id for tests).
+  - `TestableAirdrop(hub, scopeSeed, tokenAddress)` where:
+    - `scopeSeed` is a test string (e.g., `"airdrop-example"`).
   - `TestERC20("Test", "TST")`.
-
-- **Initial state**:
-
-  - For ERC20 tests, the `sender` is minted `10_000` tokens.
-  - Helper builders construct `userData` containing destination chain id, a per-user identifier, and the ABI-encoded payload.
-
-- **Why this setup**:
-  - Provides a deterministic environment to validate batch semantics, event emissions, recipient validations, and accounting for both ERC20 and native transfers.
-  - The approval/funding steps mirror real prerequisites: ERC20 approvals for token transfers and contract balance funding for native transfers.
 
 ### Test cases and coverage
 
-- **sends ERC20 in batch via onVerificationSuccess hook**
-
-  - **What**: Batch transfer ERC20 to multiple recipients.
-  - **How**: `sender` approves `multisend` for `total` amount; build type-1 `userData` with `token`, `from`, `recipients`, `amounts`; call `trigger(userData)` as `hub`.
+- **registers via hook and allows merkle claim**
+  - **What**: Full ERC20 flow—verifies a user, registers them, and allows them to claim tokens from an airdrop using a Merkle proof.
+  - **How**:
+    - Owner opens registration and claim phases.
+    - A verification config ID is set.
+    - The `trigger` function is called on `TestableAirdrop` to simulate a successful Self verification, which registers the user.
+    - Registration is closed.
+    - A Merkle root is set for the airdrop.
+    - The airdrop contract is funded with tokens.
+    - The registered user calls the `claim` function with a valid Merkle proof.
   - **Asserts**:
-    - `BatchSent(sender, token, isNative=false, recipients.length, total)` emitted.
-    - Recipients received exact amounts; sender balance decreased by `total`.
-  - **Why**: Validates core ERC20 batch flow and event integrity.
+    - `Claimed` event is emitted with correct arguments.
+    - The user's token balance increases by the claimed amount.
+  - **Why**: Validates the entire lifecycle of the airdrop contract, including user verification, registration, and the claiming process with Merkle proof validation.
 
-- **reverts on too many recipients (ERC20)**
+---
 
-  - **What**: Input validation when recipients exceed configured bound.
-  - **How**: Build arrays of length `201`; approve `total=201` and call `trigger`.
-  - **Asserts**: Reverts with custom error `TooManyRecipients`.
-  - **Why**: Ensures guardrails on batch size to limit gas and prevent abuse.
+## SelfProtectedDrop tests
 
-- **sends native in batch via onVerificationSuccess hook**
+File: `contracts/test/SelfProtectedDrop.spec.ts`
 
+### Test cases and coverage
+
+- **sends ETH to many recipients**
   - **What**: Batch transfer native ETH to multiple recipients.
-  - **How**: Build type-2 `userData` with `from`, `recipients`, `amounts`, `total`. Pre-fund the `multisend` contract with `total`. Call `trigger(userData)` as `hub`.
+  - **How**: The `airdropETH` function is called with a list of recipients and amounts, and the total value is sent with the transaction.
   - **Asserts**:
-    - `BatchSent(sender, 0x0, isNative=true, recipients.length, total)` emitted.
-    - Recipients' balances each increase by the expected amount.
-  - **Why**: Validates native transfer path and event integrity.
+    - Each recipient's balance increases by the expected amount.
+  - **Why**: Validates the core functionality of batch sending ETH.
 
-- **reverts on zero recipient (native)**
-  - **What**: Input validation that disallows zero-address recipients.
-  - **How**: Build payload with `[address(0)]` and call `trigger`.
-  - **Asserts**: Reverts with custom error `ZeroAddress`.
-  - **Why**: Prevents burned funds and enforces address validity.
-
----
-
-## ClaimDropSelf tests
-
-File: `contracts/test/claimdrop.spec.ts`
-
-### Setup
-
-- **Deployments**:
-
-  - `TestableClaimDropSelf(hub, scopeSeed)`.
-  - `TestERC20("Test", "TST")`.
-
-- **Drop configuration**:
-
-  - Config object used: `{ olderThan: 0, forbiddenCountries: [], ofacEnabled: false }` (minimal constraints to focus on payout logic).
-  - Merkle root: for simplicity, tests use `keccak256(abi.encode(claimer, amount))` as both the leaf and root; this allows verifying inclusion logic in a minimal way without building a full Merkle tree.
-
-- **Why this setup**:
-  - Isolates drop creation, funding, claiming via hook, and sweeping remainder for both ERC20 and native flows, without external dependencies.
-
-### Test cases and coverage
-
-- **creates, funds, and claims ERC20 drop via hook**
-
-  - **What**: Full ERC20 flow—create drop, fund it, then pay a claim via the verification hook.
+- **sends ERC20 to many recipients**
+  - **What**: Batch transfer ERC20 tokens to multiple recipients.
   - **How**:
-    - `owner` creates drop with ERC20 token, `total`, and `merkleRoot`.
-    - `owner` mints and approves `total`, then calls `fundDrop(dropId, total)`.
-    - Build type-3 `userData` with `dropId`, `claimer`, `amount`. Call `trigger(userData)` as `hub`.
+    - The sender is minted the total amount of tokens.
+    - The sender approves the `SelfProtectedDrop` contract to spend the tokens.
+    - The `airdropERC20` function is called with the token address, recipients, amounts, and total amount.
   - **Asserts**:
-    - `DropFunded(dropId, total, isNative=false)` emitted.
-    - `Claimed(dropId, claimer, amount)` emitted.
-    - Claimer receives tokens; `drops(dropId).funded` reduced by `amount`.
-    - `claimed(dropId, leaf)` is `true`.
-  - **Why**: Validates ERC20 claim path via hook and single-claim accounting.
-
-- **creates, funds native, claims via hook, and sweeps remainder**
-  - **What**: Full native flow—create drop with native currency, fund it, pay claim via hook, then sweep remaining funds to a receiver.
-  - **How**:
-    - `owner` creates native drop; funds via `fundDropNative(dropId, { value: total })`.
-    - Build type-3 `userData`; call `trigger(userData)` as `hub`.
-    - `owner` calls `sweepUnclaimed(dropId, sweepTo)`.
-  - **Asserts**:
-    - `DropFunded(dropId, total, isNative=true)` emitted.
-    - Claimer's balance increases by `amount`.
-    - `Swept(dropId, sweepTo, total - amount)` emitted and `sweepTo` receives exactly the remainder.
-  - **Why**: Validates native claim path and post-claim reconciliation via sweeping.
+    - Each recipient's token balance increases by the correct amount.
+    - The sender's token balance decreases by the total amount.
+  - **Why**: Validates the core functionality of batch sending ERC20 tokens.
 
 ---
 
@@ -138,5 +84,4 @@ npx hardhat test
 
 ## Notes
 
-- The `Testable*` contracts exist only to expose the `customVerificationHook(...)` entry point for testing. In production, the Self Hub would call into the hook with verified disclosures.
-- Where negative tests expect custom errors (e.g., `TooManyRecipients`, `ZeroAddress`), these mirror input validation rules enforced by the production contracts to keep operations safe and predictable.
+- The `TestableAirdrop` contract exists only to expose the `customVerificationHook(...)` entry point for testing. In production, the Self Hub would call into the hook with verified disclosures.
