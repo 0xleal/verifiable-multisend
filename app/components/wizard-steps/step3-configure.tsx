@@ -28,6 +28,7 @@ export type DistributionMode = "send" | "claim";
 export interface DistributionConfig {
   mode: DistributionMode;
   tokenAddress: string;
+  airdropId?: string; // Unique identifier for claim mode
 }
 
 interface Step3ConfigureProps {
@@ -47,10 +48,19 @@ export function Step3Configure({
   const [tokenAddress, setTokenAddress] = useState(
     initialConfig?.tokenAddress || ""
   );
+  const [airdropId, setAirdropId] = useState(
+    initialConfig?.airdropId || ""
+  );
 
   const handleNext = () => {
-    onNext({ mode, tokenAddress });
+    onNext({ mode, tokenAddress, airdropId });
   };
+
+  const isValidAirdropId = (id: string) => {
+    return /^[a-z0-9-]+$/.test(id) && id.length >= 3 && id.length <= 50;
+  };
+
+  const canProceed = mode === "send" || (mode === "claim" && isValidAirdropId(airdropId));
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -150,23 +160,48 @@ export function Step3Configure({
                       Recipients claim individually. They pay gas fees.
                     </p>
                     <div className="flex items-center gap-4 mt-3 text-xs">
-                      <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                      <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400">
                         <Info className="h-3 w-3" />
-                        <span>Coming Soon</span>
+                        <span>Self-Verified Claims</span>
                       </div>
                     </div>
                   </div>
                 </div>
-                {mode === "claim" && (
-                  <div className="absolute inset-0 bg-muted/50 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
-                    <span className="text-xs font-medium bg-background px-3 py-1.5 rounded-full border">
-                      Not yet available
-                    </span>
-                  </div>
-                )}
               </button>
             </div>
           </div>
+
+          {/* Airdrop ID - only for claim mode */}
+          {mode === "claim" && (
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="airdrop-id" className="text-base font-semibold">
+                  Airdrop Identifier <span className="text-destructive">*</span>
+                </Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Unique name for your airdrop (lowercase, numbers, hyphens only)
+                </p>
+              </div>
+              <Input
+                id="airdrop-id"
+                placeholder="e.g., talent-q1-2025"
+                value={airdropId}
+                onChange={(e) => setAirdropId(e.target.value.toLowerCase())}
+                className="font-mono text-sm"
+                maxLength={50}
+              />
+              {airdropId && !isValidAirdropId(airdropId) && (
+                <p className="text-sm text-destructive">
+                  Must be 3-50 characters, lowercase letters, numbers, and hyphens only
+                </p>
+              )}
+              {airdropId && isValidAirdropId(airdropId) && (
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  Claim URL will be: {window.location.origin}/claim/{airdropId}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Token Address */}
           <div className="space-y-3">
@@ -222,7 +257,7 @@ export function Step3Configure({
         </Button>
         <Button
           onClick={handleNext}
-          disabled={mode === "claim"} // Disable if claim mode since it's not implemented
+          disabled={!canProceed}
           size="lg"
           className="w-full md:w-auto"
         >

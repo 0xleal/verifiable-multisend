@@ -30,7 +30,7 @@ import {
   useSwitchChain,
 } from "wagmi";
 import { formatEther, parseEther } from "viem";
-import { SelfVerifiedDropAbi } from "@/lib/contracts/self-verified-drop-abi";
+import { SelfVerifiedMultiSendAbi } from "@/lib/contracts/self-verified-multisend-abi";
 import { useEffect } from "react";
 import { SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
 import { celoSepolia } from "wagmi/chains";
@@ -79,7 +79,7 @@ export function DistributionExecutor({
 
   // const { data: scope } = useReadContract({
   //   address: contractAddress,
-  //   abi: SelfVerifiedDropAbi,
+  //   abi: SelfVerifiedMultiSendAbi,
   //   functionName: "getScope",
   //   chainId,
   //   query: { enabled: !!contractAddress },
@@ -90,7 +90,7 @@ export function DistributionExecutor({
 
   const { data: expiresAt, refetch: refetchExpiresAt } = useReadContract({
     address: contractAddress,
-    abi: SelfVerifiedDropAbi,
+    abi: SelfVerifiedMultiSendAbi,
     functionName: "verificationExpiresAt",
     args: [address ?? "0x0000000000000000000000000000000000000000"],
     chainId,
@@ -193,7 +193,7 @@ export function DistributionExecutor({
 
       const txHash = await writeContractAsync({
         address: contractAddress,
-        abi: SelfVerifiedDropAbi,
+        abi: SelfVerifiedMultiSendAbi,
         functionName: "airdropETH",
         args: [addrs, amts],
         chainId,

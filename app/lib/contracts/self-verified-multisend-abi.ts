@@ -1,4 +1,4 @@
-export const SelfVerifiedDropAbi = [
+export const SelfVerifiedMultiSendAbi = [
   {
     inputs: [
       {
@@ -329,4 +329,6 @@ export const SelfVerifiedDropAbi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
+
+export default SelfVerifiedMultiSendAbi;

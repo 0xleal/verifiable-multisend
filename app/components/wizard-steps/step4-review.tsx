@@ -22,6 +22,8 @@ import {
   Coins,
   Settings,
   FileText,
+  Copy,
+  Gift,
 } from "lucide-react";
 import {
   Table,
@@ -32,15 +34,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import type { RecipientData } from "@/components/csv-upload";
 import type { DistributionConfig } from "./step3-configure";
 import { useAccount, useWriteContract, useSwitchChain } from "wagmi";
-import { parseEther } from "viem";
-import { SelfVerifiedDropAbi } from "@/lib/contracts/self-verified-drop-abi";
+import { parseEther, keccak256, toHex } from "viem";
+import { SelfVerifiedMultiSendAbi } from "@/lib/contracts/self-verified-multisend-abi";
+import { SelfVerifiedAirdropAbi } from "@/lib/contracts/self-verified-airdrop-abi";
 import { celoSepolia } from "wagmi/chains";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config as wagmiConfig } from "@/lib/wagmi-config";
 import { DistributionJourneySummary } from "@/components/distribution-journey-summary";
+import { createMerkleTree } from "@/lib/merkle";
+import { parseUnits } from "ethers";
 
 interface Step4ReviewProps {
   onBack: () => void;
@@ -57,9 +64,14 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [claimUrl, setClaimUrl] = useState<string>("");
+  const [copied, setCopied] = useState(false);
 
-  const contractAddress =
+  // Contract addresses
+  const sendContractAddress =
     "0xC2FE5379a4c096e097d47f760855B85edDF625e2".toLowerCase() as `0x${string}`;
+  const airdropContractAddress =
+    "0x5FbDB2315678afecb367f032d93F642f64180aa3".toLowerCase() as `0x${string}`; // TODO: Update with deployed contract
   const chainId = celoSepolia.id;
 
   const totalAmount = useMemo(() => {
@@ -75,7 +87,99 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
     }
   }, [recipients]);
 
-  const handleDistribute = async () => {
+  const handleCreateAirdrop = async () => {
+    if (!address) {
+      setError("Please connect your wallet");
+      return;
+    }
+
+    if (!chain || chain.id !== celoSepolia.id) {
+      switchChain?.({ chainId: celoSepolia.id });
+      return;
+    }
+
+    if (!distributionConfig.airdropId) {
+      setError("Airdrop ID is required");
+      return;
+    }
+
+    setIsDistributing(true);
+    setError(null);
+
+    try {
+      // 1. Create merkle tree
+      const recipientsForMerkle = recipients.map((r) => ({
+        address: r.address,
+        amount: parseUnits(r.amount, 18).toString(),
+      }));
+      const merkleData = createMerkleTree(recipientsForMerkle);
+
+      // 2. Generate airdrop ID hash
+      const airdropIdHash = keccak256(toHex(distributionConfig.airdropId));
+
+      // 3. Calculate total amount
+      const amts = recipients.map((r) => parseEther(r.amount as `${string}`));
+      const value = amts.reduce((a, b) => a + b);
+
+      // 4. Create airdrop on contract
+      const hash = await writeContractAsync({
+        address: airdropContractAddress,
+        abi: SelfVerifiedAirdropAbi,
+        functionName: distributionConfig.tokenAddress ? "createAirdropERC20" : "createAirdropETH",
+        args: distributionConfig.tokenAddress
+          ? [airdropIdHash, merkleData.root, distributionConfig.tokenAddress, value]
+          : [airdropIdHash, merkleData.root],
+        chainId,
+        value: distributionConfig.tokenAddress ? undefined : value,
+      } as any);
+
+      setTxHash(hash);
+
+      const receipt = await waitForTransactionReceipt(wagmiConfig, {
+        hash,
+      });
+
+      if (receipt.status === "success") {
+        // 5. Store merkle data in API
+        try {
+          const response = await fetch("/api/airdrops", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: distributionConfig.airdropId,
+              airdropIdHash,
+              recipients: merkleData.recipients,
+              merkleRoot: merkleData.root,
+              tokenAddress: distributionConfig.tokenAddress || "0x0",
+              totalAmount: value.toString(),
+              creator: address,
+              createdAt: Date.now(),
+              txHash: hash,
+            }),
+          });
+
+          if (!response.ok) {
+            console.error("Failed to store airdrop data");
+          }
+        } catch (e) {
+          console.error("Error storing airdrop data:", e);
+        }
+
+        const url = `${window.location.origin}/claim/${distributionConfig.airdropId}`;
+        setClaimUrl(url);
+        setSuccess(true);
+      } else {
+        setError("Transaction failed");
+      }
+    } catch (e: any) {
+      console.error("Airdrop creation error:", e);
+      setError(e?.message || "Failed to create airdrop");
+    } finally {
+      setIsDistributing(false);
+    }
+  };
+
+  const handleSendDistribution = async () => {
     if (!address) {
       setError("Please connect your wallet");
       return;
@@ -95,8 +199,8 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
       const value = amts.reduce((a, b) => a + b);
 
       const hash = await writeContractAsync({
-        address: contractAddress,
-        abi: SelfVerifiedDropAbi,
+        address: sendContractAddress,
+        abi: SelfVerifiedMultiSendAbi,
         functionName: "airdropETH",
         args: [addrs, amts],
         chainId,
@@ -122,7 +226,126 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
     }
   };
 
+  const handleDistribute = () => {
+    if (distributionConfig.mode === "claim") {
+      return handleCreateAirdrop();
+    } else {
+      return handleSendDistribution();
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (claimUrl) {
+      navigator.clipboard.writeText(claimUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   if (success && txHash) {
+    if (distributionConfig.mode === "claim") {
+      // Claim mode success - show shareable URL
+      return (
+        <div className="max-w-2xl mx-auto space-y-6">
+          <Card className="border-green-200 dark:border-green-800">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-4">
+                  <Gift className="h-16 w-16 text-green-600 dark:text-green-500" />
+                </div>
+              </div>
+              <CardTitle className="text-2xl md:text-3xl">
+                Airdrop Created Successfully!
+              </CardTitle>
+              <CardDescription>
+                Share the link below with recipients to claim their tokens
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Shareable URL */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Claim URL</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={claimUrl}
+                    readOnly
+                    className="font-mono text-sm"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={copyToClipboard}
+                  >
+                    {copied ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Recipients must verify with Self before claiming
+                </p>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Total Recipients</span>
+                  <span className="font-semibold">{recipients.length}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Total Amount</span>
+                  <span className="font-semibold">
+                    {totalAmount.toLocaleString()} CELO
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Airdrop ID</span>
+                  <span className="font-mono text-xs">{distributionConfig.airdropId}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Transaction Hash</span>
+                  <a
+                    href={`${chain?.blockExplorers?.default.url}/tx/${txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-mono text-xs inline-flex items-center gap-1"
+                  >
+                    {txHash.slice(0, 6)}...{txHash.slice(-4)}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              </div>
+
+              <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <AlertDescription className="text-green-600 dark:text-green-400 text-sm">
+                  Airdrop contract deployed! Recipients can now claim their tokens.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+            <CardFooter className="flex flex-col md:flex-row gap-3">
+              <Button
+                variant="outline"
+                onClick={() => window.location.reload()}
+                className="w-full"
+              >
+                Create Another Airdrop
+              </Button>
+              <Button
+                onClick={() => window.open(claimUrl, "_blank")}
+                className="w-full"
+              >
+                Open Claim Page
+                <ExternalLink className="h-4 w-4 ml-2" />
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      );
+    }
+
+    // Send mode success
     return (
       <div className="max-w-2xl mx-auto space-y-6">
         <Card className="border-green-200 dark:border-green-800">

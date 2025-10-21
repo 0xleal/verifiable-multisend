@@ -22,7 +22,7 @@ import {
 import type { RecipientData } from "./csv-upload";
 import type { DistributionConfig } from "./wizard-steps/step3-configure";
 import { useAccount, useReadContract } from "wagmi";
-import { SelfVerifiedDropAbi } from "@/lib/contracts/self-verified-drop-abi";
+import { SelfVerifiedMultiSendAbi } from "@/lib/contracts/self-verified-multisend-abi";
 import { celoSepolia } from "wagmi/chains";
 
 interface DistributionJourneySummaryProps {
@@ -42,7 +42,7 @@ export function DistributionJourneySummary({
 
   const { data: expiresAt } = useReadContract({
     address: contractAddress,
-    abi: SelfVerifiedDropAbi,
+    abi: SelfVerifiedMultiSendAbi,
     functionName: "verificationExpiresAt",
     args: [address ?? "0x0000000000000000000000000000000000000000"],
     chainId,

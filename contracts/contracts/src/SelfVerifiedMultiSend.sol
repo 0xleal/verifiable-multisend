@@ -6,11 +6,11 @@ import {SelfVerificationRoot} from "@selfxyz/contracts/contracts/abstract/SelfVe
 import {ISelfVerificationRoot} from "@selfxyz/contracts/contracts/interfaces/ISelfVerificationRoot.sol";
 
 /**
- * @title SelfVerifiedDrop
+ * @title SelfVerifiedMultiSend
  * @notice Bulk transfers of ERC20 and ETH gated by Self.xyz verification with a 30-day expiry window.
  * @dev Uses the same gas-optimized inner loops as SelfProtectedDrop for transfers.
  */
-contract SelfVerifiedDrop is SelfVerificationRoot, Ownable {
+contract SelfVerifiedMultiSend is SelfVerificationRoot, Ownable {
     // ====================================================
     // Storage
     // ====================================================

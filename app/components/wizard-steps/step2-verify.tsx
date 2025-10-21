@@ -20,7 +20,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useAccount, useReadContract } from "wagmi";
-import { SelfVerifiedDropAbi } from "@/lib/contracts/self-verified-drop-abi";
+import { SelfVerifiedMultiSendAbi } from "@/lib/contracts/self-verified-multisend-abi";
 import { SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
 import { celoSepolia } from "wagmi/chains";
 
@@ -42,7 +42,7 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
 
   const { data: expiresAt, refetch: refetchExpiresAt } = useReadContract({
     address: contractAddress,
-    abi: SelfVerifiedDropAbi,
+    abi: SelfVerifiedMultiSendAbi,
     functionName: "verificationExpiresAt",
     args: [address ?? "0x0000000000000000000000000000000000000000"],
     chainId,

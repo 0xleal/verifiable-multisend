@@ -1,4 +1,4 @@
-[
+export const SelfVerifiedAirdropAbi = [
   {
     inputs: [
       {
@@ -622,4 +622,6 @@
     stateMutability: "payable",
     type: "receive",
   },
-];
+] as const;
+
+export default SelfVerifiedAirdropAbi;
