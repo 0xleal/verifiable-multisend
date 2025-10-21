@@ -8,6 +8,7 @@ async function main() {
     console.warn(
       `Warning: intended for celo_sepolia, current: ${network.name}`
     );
+    return;
   }
 
   const HUB_V2 = "0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74"; // Celo Sepolia Hub V2

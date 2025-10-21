@@ -260,11 +260,6 @@ HumanPay consists of three core contracts:
    - Enforces one-claim-per-person using merkle proofs
    - Configurable compliance rules (OFAC, age, jurisdiction)
 
-3. **SelfProtectedDrop.sol** - Gas-optimized baseline (no verification)
-   - Pure assembly implementation for maximum efficiency
-   - No verification gates—use for trusted/internal distributions
-   - 70%+ gas savings compared to individual transfers
-
 All contracts use **assembly-optimized loops** for batch operations, minimizing gas costs.
 
 ### Verification Flow
