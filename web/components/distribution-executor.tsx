@@ -74,7 +74,7 @@ export function DistributionExecutor({
   const [successTxHash, setSuccessTxHash] = useState<string | null>(null);
 
   const contractAddress =
-    "0xC2FE5379a4c096e097d47f760855B85edDF625e2".toLowerCase() as `0x${string}`;
+    "0x33041027dd8F4dC82B6e825FB37ADf8f15d44053".toLowerCase() as `0x${string}`;
   const chainId = celoSepolia.id;
 
   // const { data: scope } = useReadContract({

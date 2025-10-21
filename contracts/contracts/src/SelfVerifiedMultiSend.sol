@@ -132,6 +132,11 @@ contract SelfVerifiedMultiSend is SelfVerificationRoot, Ownable {
     ) external payable {
         if (!isSenderVerified(msg.sender)) revert SenderNotVerified();
         assembly {
+            // Ensure target is a contract
+            if iszero(extcodesize(_token)) {
+                revert(0, 0)
+            }
+
             // Check that the number of addresses matches the number of amounts
             if iszero(eq(_amounts.length, _addresses.length)) {
                 revert(0, 0)
@@ -151,13 +156,26 @@ contract SelfVerifiedMultiSend is SelfVerificationRoot, Ownable {
                 revert(0, 0)
             }
 
-            // transfer(address to, uint256 value)
-            mstore(0x00, hex"a9059cbb")
+            switch returndatasize()
+            case 0 {
+
+            }
+            case 0x20 {
+                returndatacopy(0x00, 0x00, 0x20)
+                if iszero(mload(0x00)) {
+                    revert(0, 0)
+                }
+            }
+            default {
+                revert(0, 0)
+            }
 
             // end of array
             let end := add(_addresses.offset, shl(5, _addresses.length))
             // diff = _addresses.offset - _amounts.offset
             let diff := sub(_addresses.offset, _amounts.offset)
+            // remaining = total amount to distribute
+            let remaining := _totalAmount
 
             // Loop through the addresses
             for {
@@ -165,12 +183,35 @@ contract SelfVerifiedMultiSend is SelfVerificationRoot, Ownable {
             } 1 {
 
             } {
+                // transfer(address to, uint256 value)
+                mstore(0x00, hex"a9059cbb")
                 // to address
                 mstore(0x04, calldataload(addressOffset))
                 // amount
-                mstore(0x24, calldataload(sub(addressOffset, diff)))
+                let amount := calldataload(sub(addressOffset, diff))
+                mstore(0x24, amount)
+
+                // Ensure we don't send more than remaining
+                if lt(remaining, amount) {
+                    revert(0, 0)
+                }
+                remaining := sub(remaining, amount)
+
                 // transfer the tokens
-                if iszero(call(gas(), _token, 0, 0x00, 0x64, 0, 0)) {
+                if iszero(call(gas(), _token, 0, 0x00, 0x44, 0, 0)) {
+                    revert(0, 0)
+                }
+                switch returndatasize()
+                case 0 {
+
+                }
+                case 0x20 {
+                    returndatacopy(0x00, 0x00, 0x20)
+                    if iszero(mload(0x00)) {
+                        revert(0, 0)
+                    }
+                }
+                default {
                     revert(0, 0)
                 }
                 // increment the address offset
@@ -178,6 +219,30 @@ contract SelfVerifiedMultiSend is SelfVerificationRoot, Ownable {
                 // if addressOffset >= end, break
                 if iszero(lt(addressOffset, end)) {
                     break
+                }
+            }
+
+            // Refund any leftover tokens back to caller
+            if remaining {
+                // transfer(address to, uint256 value)
+                mstore(0x00, hex"a9059cbb")
+                mstore(0x04, caller())
+                mstore(0x24, remaining)
+                if iszero(call(gas(), _token, 0, 0x00, 0x44, 0, 0)) {
+                    revert(0, 0)
+                }
+                switch returndatasize()
+                case 0 {
+
+                }
+                case 0x20 {
+                    returndatacopy(0x00, 0x00, 0x20)
+                    if iszero(mload(0x00)) {
+                        revert(0, 0)
+                    }
+                }
+                default {
+                    revert(0, 0)
                 }
             }
         }

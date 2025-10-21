@@ -7,7 +7,7 @@ import { SelfVerifiedAirdropAbi } from "@/lib/contracts/self-verified-airdrop-ab
 // Environment variables
 const RPC_URL = process.env.CELO_SEPOLIA_RPC_URL || "https://alfajores-forno.celo-testnet.org";
 const AIRDROP_CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ADDRESS ||
-  "0x5FbDB2315678afecb367f032d93F642f64180aa3") as `0x${string}`;
+  "0x7c2a63e1713578d4d704b462c2dee311a59ae304") as `0x${string}`;
 
 // Viem public client for onchain verification
 const publicClient = createPublicClient({

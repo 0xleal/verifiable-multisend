@@ -198,6 +198,103 @@ describe("SelfVerifiedMultiSend", () => {
           .airdropERC20(await erc20.getAddress(), addresses, amounts, totalAmount)
       ).to.be.revertedWithCustomError(multisend, "SenderNotVerified");
     });
+
+    it("should refund surplus amount back to sender", async () => {
+      const {
+        hub,
+        sender,
+        recipient1,
+        recipient2,
+        recipient3,
+        erc20,
+        multisend,
+      } = await deploy();
+
+      await verifyUser(multisend, hub, sender);
+
+      const addresses = [
+        recipient1.address,
+        recipient2.address,
+        recipient3.address,
+      ];
+      const amounts = [
+        ethers.parseEther("1"),
+        ethers.parseEther("2"),
+        ethers.parseEther("3"),
+      ];
+      const totalAmount =
+        amounts.reduce((acc, val) => acc + val, 0n) + ethers.parseEther("1");
+
+      await erc20.mint(sender.address, totalAmount);
+      await erc20
+        .connect(sender)
+        .approve(await multisend.getAddress(), totalAmount);
+
+      await multisend
+        .connect(sender)
+        .airdropERC20(await erc20.getAddress(), addresses, amounts, totalAmount);
+
+      expect(await erc20.balanceOf(recipient1.address)).to.equal(amounts[0]);
+      expect(await erc20.balanceOf(recipient2.address)).to.equal(amounts[1]);
+      expect(await erc20.balanceOf(recipient3.address)).to.equal(amounts[2]);
+
+      const surplus = ethers.parseEther("1");
+      expect(await erc20.balanceOf(sender.address)).to.equal(surplus);
+      expect(
+        await erc20.balanceOf(await multisend.getAddress())
+      ).to.equal(0n);
+    });
+
+    it("should revert when ERC20 returns false", async () => {
+      const {
+        hub,
+        sender,
+        recipient1,
+        recipient2,
+        recipient3,
+        multisend,
+      } = await deploy();
+
+      const FalseReturnERC20 = await ethers.getContractFactory(
+        "FalseReturnERC20"
+      );
+      const falseToken = await FalseReturnERC20.deploy();
+      await falseToken.waitForDeployment();
+
+      await verifyUser(multisend, hub, sender);
+
+      const addresses = [
+        recipient1.address,
+        recipient2.address,
+        recipient3.address,
+      ];
+      const amounts = [
+        ethers.parseEther("1"),
+        ethers.parseEther("2"),
+        ethers.parseEther("3"),
+      ];
+      const totalAmount = ethers.parseEther("6");
+
+      await falseToken.mint(sender.address, totalAmount);
+      await falseToken
+        .connect(sender)
+        .approve(await multisend.getAddress(), totalAmount);
+
+      await expect(
+        multisend
+          .connect(sender)
+          .airdropERC20(
+            await falseToken.getAddress(),
+            addresses,
+            amounts,
+            totalAmount
+          )
+      ).to.be.reverted;
+
+      expect(await falseToken.balanceOf(recipient1.address)).to.equal(0n);
+      expect(await falseToken.balanceOf(recipient2.address)).to.equal(0n);
+      expect(await falseToken.balanceOf(recipient3.address)).to.equal(0n);
+    });
   });
 
   describe("ETH Airdrop", () => {
