@@ -9,6 +9,7 @@ HumanPay is an open-source protocol that enables anyone to send crypto payments 
 Cross-border payments are broken, and crypto hasn't fully solved it yet:
 
 **Traditional Finance:**
+
 - 3-7 day settlement times for international wire transfers
 - 3-7% fees extracted by banks and intermediaries (SWIFT, correspondent banks)
 - Requires local banking relationships in every operating country
@@ -17,6 +18,7 @@ Cross-border payments are broken, and crypto hasn't fully solved it yet:
 - Business hours and weekend delays
 
 **Existing Crypto Solutions:**
+
 - **Centralized exchanges** (Coinbase, Binance) require full KYC, custody your funds, and can freeze accounts
 - **DEXs and DeFi protocols** have no compliance layer—forcing users into regulatory gray zones
 - **No on-chain compliance proofs**—you can't demonstrate OFAC/sanctions screening without trusted third parties
@@ -26,6 +28,7 @@ Cross-border payments are broken, and crypto hasn't fully solved it yet:
 **The Gap:** We need infrastructure that combines crypto's **instant settlement** and **global accessibility** with traditional finance's **compliance guarantees**—all without centralized custody or invasive data collection.
 
 Current solutions force an impossible choice:
+
 1. **Centralized platforms** (Wise, Revolut, exchanges) that custody funds, collect extensive personal data, and control access
 2. **Unprotected smart contracts** that can't enforce compliance, leading to regulatory risk and potential sanctions violations
 3. **Traditional banking** with prohibitive costs ($30-50 per wire), exclusionary access requirements, and multi-day delays
@@ -46,9 +49,11 @@ HumanPay combines **zero-knowledge identity verification** with **gas-optimized 
 ### Two Operating Modes
 
 #### 1. **Distribute Mode** (Sender Verification)
+
 Push payments to multiple international recipients in a single transaction. Only the sender needs identity verification.
 
 **Use cases:**
+
 - **International contractor payments** - Pay a global team across 20+ countries instantly
 - **Cross-border payroll** - DAO paying contributors in Argentina, India, Nigeria, Philippines
 - **Remittances** - Send money to family abroad without 7% Western Union fees
@@ -56,6 +61,7 @@ Push payments to multiple international recipients in a single transaction. Only
 - **Emergency relief** - Deliver aid funds directly to recipients in crisis zones
 
 **How it works:**
+
 1. Upload CSV with recipient addresses and amounts
 2. Verify your identity via Self.xyz (valid for 30 days, cryptographically proves OFAC compliance)
 3. Execute one on-chain transaction—everyone gets paid simultaneously
@@ -72,16 +78,19 @@ Push payments to multiple international recipients in a single transaction. Only
 | **Access** | Anyone with crypto wallet | Requires bank account |
 
 #### 2. **Airdrop Mode** (Recipient Verification)
+
 Create a compliance-gated token distribution where each recipient must verify their identity before claiming.
 
 **Use cases:**
-- **Compliant token launches** - Distribute governance tokens while excluding sanctioned countries
+
+- **Compliant token launches** - Distribute tokens while excluding sanctioned countries
 - **Region-specific programs** - Limit participation to specific jurisdictions (e.g., EU-only, US-excluded)
 - **Age-gated distributions** - Ensure recipients meet age requirements (+21 for certain tokens)
 - **One-person-one-allocation** - Prevent sybil attacks and multi-accounting
 - **Regulated asset distributions** - Prove compliance for security tokens or restricted assets
 
 **How it works:**
+
 1. Creator uploads recipient allowlist and deposits tokens with merkle root
 2. Recipients verify identity via Self.xyz (must pass OFAC, jurisdiction, age checks)
 3. Each recipient claims their allocation on-chain using merkle proof
@@ -103,6 +112,7 @@ Create a compliance-gated token distribution where each recipient must verify th
 [Self.xyz](https://self.xyz) enables **cryptographic identity verification** using government-issued documents (ePassports, EU ID cards) without revealing personal information:
 
 **How it works:**
+
 1. **NFC chip reading** - User scans their passport/ID with Self.xyz mobile app
 2. **Government signature validation** - Cryptographically verifies document authenticity using country's public keys
 3. **Zero-knowledge proof generation** - Proves attributes (e.g., "over 21", "not in sanctioned country") without revealing name, DOB, address
@@ -110,12 +120,14 @@ Create a compliance-gated token distribution where each recipient must verify th
 5. **Compliance attestation** - Immutable on-chain record that sender/recipient passed verification
 
 **Privacy guarantees:**
+
 - **No personal data on-chain** - Only cryptographic proofs stored
 - **No data sent to HumanPay** - Verification happens between user's device and Self.xyz
 - **Selective disclosure** - Prove only what's required (e.g., "not OFAC sanctioned" without revealing nationality)
 - **Liveness detection** - Prevents spoofing with photos or videos
 
 **Compliance capabilities:**
+
 - ✅ OFAC sanctions screening
 - ✅ Country/jurisdiction restrictions (include or exclude specific regions)
 - ✅ Age verification (e.g., 18+, 21+)
@@ -128,9 +140,11 @@ Each verification costs a small fee (paid to Self.xyz), creating an economic bar
 ## Use Case Examples
 
 ### 🌍 Global Remote Team Payroll
+
 A software company employs 50 contractors across 25 countries (Nigeria, Philippines, Argentina, India, Poland, Brazil, etc.).
 
 **Traditional approach:**
+
 - Set up banking relationships in each country (weeks of paperwork)
 - Wire $50k total payroll → Pay $1,500+ in wire fees
 - Wait 3-7 days for funds to arrive (longer for some countries)
@@ -138,22 +152,26 @@ A software company employs 50 contractors across 25 countries (Nigeria, Philippi
 - Contractors lose 3-5% converting to local currency at banks
 
 **With HumanPay:**
+
 - Treasurer verifies identity once via Self.xyz (30-day validity)
 - Upload payroll CSV on payday
-- Execute single transaction: $50k distributed, $25 gas fee
+- Execute single transaction: $50k distributed, >$1 gas fee
 - All 50 contractors receive funds within seconds
 - Each contractor converts to local currency via local DEX/exchange at better rates
 - **Net savings: $1,475+ per month + instant settlement**
 
 ### 💸 Remittance Corridor (US → Philippines)
+
 Maria works in the US and sends $500/month to her family in Manila.
 
 **Traditional approach (Western Union/bank):**
+
 - $500 - $35 fee = $465 received
 - Family waits 1-3 days for funds
 - Annual cost: $420 in fees (7% of total)
 
 **With HumanPay:**
+
 - Maria verifies once/month via Self.xyz
 - Sends USDC directly to family's wallet
 - Cost: ~$0.50 in gas fees
@@ -161,15 +179,18 @@ Maria works in the US and sends $500/month to her family in Manila.
 - **Annual savings: $414 (99% fee reduction)**
 
 ### 🪂 Compliant Token Launch (Exclude US/Sanctioned Countries)
+
 A DeFi protocol launches a governance token and must exclude US persons and OFAC-sanctioned countries for regulatory reasons.
 
 **Traditional approach:**
+
 - Use centralized platform (collects full KYC data of all users)
 - Trust platform's compliance claims
 - Users must upload passport scans to centralized servers (data breach risk)
 - Platform takes 10-20% of token allocation as fee
 
 **With HumanPay Airdrop Mode:**
+
 - Configure Self.xyz verification: OFAC check + exclude US
 - Create merkle tree with 10,000 eligible addresses
 - Deposit tokens to smart contract
@@ -179,15 +200,18 @@ A DeFi protocol launches a governance token and must exclude US persons and OFAC
 - **Zero personal data stored, zero platform custody, zero trust assumptions**
 
 ### 🆘 Humanitarian Aid Distribution
+
 An NGO distributes emergency funds to 200 individuals in a crisis zone where banking infrastructure is damaged.
 
 **Traditional approach:**
+
 - Requires intact banking system (often unavailable)
 - Cash distribution = high risk of theft/corruption
 - Slow (days to weeks for wire transfers)
 - Difficult to verify recipients (potential for fraud)
 
 **With HumanPay:**
+
 - Recipients only need: passport + smartphone + internet
 - NGO verifies sender identity (demonstrates proper fund custody)
 - Recipients verify via Self.xyz (prevents duplicate claims)
@@ -196,9 +220,11 @@ An NGO distributes emergency funds to 200 individuals in a crisis zone where ban
 - **Full audit trail on-chain, cryptographic proof of recipient verification**
 
 ### 💼 Cross-Border B2B Settlements
+
 A marketplace platform pays 100 vendors across Europe, Asia, and Latin America monthly.
 
 **Traditional approach:**
+
 - Manual SWIFT payments to each vendor
 - 100 vendors × $40/wire = $4,000 in fees
 - 3-5 day settlement per payment
@@ -206,10 +232,11 @@ A marketplace platform pays 100 vendors across Europe, Asia, and Latin America m
 - Requires detailed banking info from each vendor
 
 **With HumanPay:**
-- Platform verifies once per month
+
+- Platform requires verification once per month
 - Upload vendor payment CSV
 - One transaction → all vendors paid instantly
-- Cost: ~$50 in gas (99% fee reduction)
+- Cost: ~$0.01 in gas per vendor (99% fee reduction)
 - Vendors receive stablecoins (USDC/USDT) and convert locally
 - **Savings: $3,950/month + instant settlement + simplified accounting**
 
@@ -220,12 +247,14 @@ A marketplace platform pays 100 vendors across Europe, Asia, and Latin America m
 HumanPay consists of three core contracts:
 
 1. **SelfVerifiedDrop.sol** - Compliant sender-gated batch distribution
+
    - Sender must pass Self.xyz verification (OFAC + jurisdiction checks)
    - Execute `airdropETH()` or `airdropERC20()` with arrays of recipients and amounts
    - Single transaction sends to unlimited recipients
    - Verification valid for 30 days, then must renew
 
 2. **SelfVerifiedAirdrop.sol** - Compliant recipient-gated merkle claims
+
    - Creator deposits tokens with merkle root
    - Recipients must verify via Self.xyz before claiming
    - Enforces one-claim-per-person using merkle proofs
@@ -267,12 +296,14 @@ All contracts use **assembly-optimized loops** for batch operations, minimizing 
 ### Technical Stack
 
 **Smart Contracts:**
+
 - Solidity ^0.8.28
 - OpenZeppelin Contracts 5.0.2
 - Self.xyz Contracts 1.2.3
 - Gas-optimized assembly for batch operations
 
 **Frontend:**
+
 - Next.js 15.5.4 with React 19
 - TypeScript 5
 - Wagmi 2.18.1 + Viem 2.38.2
@@ -280,6 +311,7 @@ All contracts use **assembly-optimized loops** for batch operations, minimizing 
 - Radix UI + Tailwind CSS
 
 **Blockchain:**
+
 - Celo Sepolia (testnet)
 - Self.xyz Identity Hub V2
 - Planned: Ethereum, Base, Optimism, Arbitrum
@@ -297,7 +329,7 @@ All contracts use **assembly-optimized loops** for batch operations, minimizing 
 
 ```bash
 # Clone the repository
-git clone https://github.com/talentprotocol/humanpay.git
+git clone https://github.com/0xleal/humanpay.git
 cd humanpay
 
 # Install frontend dependencies
@@ -348,6 +380,7 @@ npx hardhat run scripts/deploy-self-verified-airdrop.ts --network celo-sepolia
    - All recipients receive tokens simultaneously
 
 **Example CSV:**
+
 ```csv
 address,amount
 0x1234567890123456789012345678901234567890,1.5
@@ -357,7 +390,7 @@ address,amount
 
 ### Airdrop Mode (Compliant Token Claims)
 
-*Coming soon to frontend interface*
+_Coming soon to frontend interface_
 
 Use the smart contract directly:
 
@@ -398,12 +431,14 @@ Create custom verification configs at [Self.xyz Platform](https://platform.self.
 ### Network Configuration
 
 Currently deployed on **Celo Sepolia** (testnet):
+
 - Chain ID: 11142220
 - RPC: `https://forno.celo-sepolia.celo-testnet.org`
 - Block Explorer: [https://sepolia.celoscan.io](https://sepolia.celoscan.io)
 - Contract: `0xC2FE5379a4c096e097d47f760855B85edDF625e2`
 
 **Why Celo?**
+
 - Mobile-first design (many users in emerging markets access crypto via phone)
 - Low transaction fees (critical for small remittances)
 - Stablecoin-native (cUSD, cEUR for easy cross-border payments)
@@ -448,12 +483,14 @@ Currently deployed on **Celo Sepolia** (testnet):
 ## Why Build This?
 
 Cross-border payments move **$150 trillion annually**, with **$700 billion in remittances alone**. Yet the infrastructure is:
+
 - Expensive (3-7% average fees)
 - Slow (3-7 days settlement)
 - Exclusive (1.4B unbanked)
 - Compliance-risky (manual KYC doesn't scale)
 
 Crypto promises to fix this, but existing solutions either:
+
 1. **Sacrifice compliance** (pure DeFi = regulatory risk)
 2. **Sacrifice decentralization** (centralized exchanges = custody risk)
 3. **Sacrifice privacy** (full KYC platforms = data breach risk)
@@ -461,6 +498,7 @@ Crypto promises to fix this, but existing solutions either:
 **HumanPay solves the trilemma:** compliant + decentralized + private.
 
 This is **open-source infrastructure for the future of global payments**—built for:
+
 - Remote work (pay global teams instantly)
 - Remittances (send money home without 7% fees)
 - Humanitarian aid (deliver funds to crisis zones)
@@ -472,6 +510,7 @@ This is **open-source infrastructure for the future of global payments**—built
 We welcome contributions! This is an open-source public good.
 
 **Priority areas:**
+
 - Frontend enhancements (better UX, mobile optimization)
 - Additional chain integrations (Base, Arbitrum, etc.)
 - Stablecoin-specific optimizations
@@ -504,6 +543,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 **Building the compliance layer for decentralized cross-border payments.**
 
-*Because sending money across borders shouldn't cost 7% and take 7 days.*
+_Because sending money across borders shouldn't cost 7% and take 7 days._
 
 Questions? Open an issue or reach out to the team.

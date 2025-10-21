@@ -71,7 +71,7 @@ export default function Home() {
               </Button>
             </Link>
             <a
-              href="https://github.com/talentprotocol/verifiable-multisend"
+              href="https://github.com/0xleal/verifiable-multisend"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -298,14 +298,18 @@ export default function Home() {
                       <span className="font-semibold">$1,500+ fees</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">With HumanPay</span>
-                      <span className="font-semibold text-primary">$25 gas</span>
+                      <span className="text-muted-foreground">
+                        With HumanPay
+                      </span>
+                      <span className="font-semibold text-primary">
+                        {">"}$1 gas
+                      </span>
                     </div>
                   </div>
                   <div className="pt-2 border-t">
                     <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                       <CheckCircle2 className="h-4 w-4" />
-                      Save $1,475+ per month
+                      Save $1,500+ per month
                     </div>
                   </div>
                 </CardContent>
@@ -330,8 +334,12 @@ export default function Home() {
                       <span className="font-semibold">$420/year fees</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">With HumanPay</span>
-                      <span className="font-semibold text-primary">$6/year</span>
+                      <span className="text-muted-foreground">
+                        With HumanPay
+                      </span>
+                      <span className="font-semibold text-primary">
+                        {">"}$1/year
+                      </span>
                     </div>
                   </div>
                   <div className="pt-2 border-t">
@@ -350,8 +358,7 @@ export default function Home() {
                     Compliant Token Launch
                   </CardTitle>
                   <CardDescription>
-                    Distribute governance tokens while excluding sanctioned
-                    countries
+                    Distribute tokens while excluding sanctioned countries
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -389,9 +396,11 @@ export default function Home() {
                       <span className="font-semibold">$4,000/month</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">With HumanPay</span>
+                      <span className="text-muted-foreground">
+                        With HumanPay
+                      </span>
                       <span className="font-semibold text-primary">
-                        $50/month
+                        {">"}$1/month
                       </span>
                     </div>
                   </div>
@@ -479,19 +488,6 @@ export default function Home() {
                   Launch App <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>
-              <a
-                href="https://github.com/talentprotocol/verifiable-multisend"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="gap-2 text-lg h-12 px-8 bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
-                >
-                  View Documentation
-                </Button>
-              </a>
             </div>
           </div>
         </div>
@@ -517,7 +513,7 @@ export default function Home() {
               <h5 className="font-semibold">Resources</h5>
               <div className="space-y-2 text-sm">
                 <a
-                  href="https://github.com/talentprotocol/verifiable-multisend"
+                  href="https://github.com/0xleal/verifiable-multisend"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block text-muted-foreground hover:text-foreground transition-colors"
