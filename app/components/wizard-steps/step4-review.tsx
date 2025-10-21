@@ -140,29 +140,49 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
       });
 
       if (receipt.status === "success") {
-        // 5. Store merkle data in API
+        // 5. Store merkle data - DEFENSE IN DEPTH
+        const airdropData = {
+          id: distributionConfig.airdropId,
+          airdropIdHash,
+          recipients: merkleData.recipients,
+          merkleRoot: merkleData.root,
+          tokenAddress: distributionConfig.tokenAddress || "0x0",
+          totalAmount: value.toString(),
+          creator: address,
+          createdAt: Date.now(),
+          txHash: hash,
+          network: "celo-sepolia",
+        };
+
+        // CRITICAL: Save to localStorage FIRST (instant backup)
+        const { savePendingSync, removePendingSync } = await import("@/lib/airdrop-sync-storage");
+        savePendingSync(distributionConfig.airdropId, airdropData);
+
+        // Try to sync to backend immediately
         try {
           const response = await fetch("/api/airdrops", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id: distributionConfig.airdropId,
-              airdropIdHash,
-              recipients: merkleData.recipients,
-              merkleRoot: merkleData.root,
-              tokenAddress: distributionConfig.tokenAddress || "0x0",
-              totalAmount: value.toString(),
-              creator: address,
-              createdAt: Date.now(),
-              txHash: hash,
-            }),
+            body: JSON.stringify(airdropData),
           });
 
-          if (!response.ok) {
-            console.error("Failed to store airdrop data");
+          if (response.ok) {
+            // Success! Remove from localStorage
+            removePendingSync(distributionConfig.airdropId);
+            console.log("Airdrop data successfully synced to backend");
+          } else {
+            console.warn(
+              "Failed to sync airdrop data to backend. Will retry automatically.",
+              await response.text()
+            );
+            // Data is safe in localStorage and will be retried by auto-sync
           }
         } catch (e) {
-          console.error("Error storing airdrop data:", e);
+          console.warn(
+            "Error syncing airdrop data to backend. Will retry automatically.",
+            e
+          );
+          // Data is safe in localStorage and will be retried by auto-sync
         }
 
         const url = `${window.location.origin}/claim/${distributionConfig.airdropId}`;
