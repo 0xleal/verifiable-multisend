@@ -11,7 +11,9 @@
     "clean": "rimraf cache artifacts",
     "test": "hardhat test",
     "test:gas": "REPORT_GAS=true hardhat test",
-    "demo:celo:sepolia": "hardhat run --network celo_sepolia scripts/demo-multisend.ts"
+    "demo:celo:sepolia": "hardhat run --network celo_sepolia scripts/demo-multisend.ts",
+    "deploy:base": "hardhat run --network base scripts/deploy-simple-send-base.ts",
+    "deploy:base:sepolia": "hardhat run --network base_sepolia scripts/deploy-simple-send-base.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",

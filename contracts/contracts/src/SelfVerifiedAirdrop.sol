@@ -48,6 +48,11 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
         address indexed claimer,
         uint256 amount
     );
+    event AirdropCancelled(
+        bytes32 indexed airdropId,
+        address indexed creator,
+        uint256 refundedAmount
+    );
     event SenderVerified(address indexed sender, uint256 expiresAt);
 
     error NotVerified();
@@ -58,6 +63,8 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
     error InvalidProof();
     error AmountExceedsTotal();
     error NativeTransferFailed();
+    error NotCreator();
+    error AirdropAlreadyCancelled();
 
     // ====================================================
     // Constructor
@@ -227,5 +234,32 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
 
         emit Claimed(airdropId, msg.sender, amount);
     }
+
+    // ====================================================
+    // Cancellation
+    // ====================================================
+
+    function cancelAirdrop(bytes32 airdropId) external {
+        Airdrop storage airdrop_ = airdrops[airdropId];
+        if (airdrop_.merkleRoot == 0) revert AirdropNotFound();
+        if (airdrop_.creator != msg.sender) revert NotCreator();
+
+        uint256 refundAmount = airdrop_.totalAmount - airdrop_.claimedAmount;
+
+        // Mark as cancelled by setting merkleRoot to 0
+        airdrop_.merkleRoot = 0;
+
+        if (refundAmount > 0) {
+            if (airdrop_.tokenAddress == address(0)) {
+                (bool success, ) = msg.sender.call{value: refundAmount}("");
+                if (!success) revert NativeTransferFailed();
+            } else {
+                IERC20(airdrop_.tokenAddress).safeTransfer(msg.sender, refundAmount);
+            }
+        }
+
+        emit AirdropCancelled(airdropId, msg.sender, refundAmount);
+    }
+
     receive() external payable {}
 }
