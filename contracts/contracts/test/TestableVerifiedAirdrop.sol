@@ -7,7 +7,7 @@ import {ISelfVerificationRoot} from "@selfxyz/contracts/contracts/interfaces/ISe
 contract TestableVerifiedAirdrop is SelfVerifiedAirdrop {
     constructor(
         address hub,
-        string memory scopeSeed
+        uint256 scopeSeed
     ) SelfVerifiedAirdrop(hub, scopeSeed) {}
 
     function trigger(bytes memory userData) external {

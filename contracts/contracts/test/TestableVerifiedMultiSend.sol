@@ -7,7 +7,7 @@ import {ISelfVerificationRoot} from "@selfxyz/contracts/contracts/interfaces/ISe
 contract TestableVerifiedMultiSend is SelfVerifiedMultiSend {
     constructor(
         address hub,
-        string memory scopeSeed
+        uint256 scopeSeed
     ) SelfVerifiedMultiSend(hub, scopeSeed) {}
 
     function trigger(bytes memory userData) external {

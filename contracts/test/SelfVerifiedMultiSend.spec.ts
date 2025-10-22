@@ -13,9 +13,10 @@ describe("SelfVerifiedMultiSend", () => {
     const VerifiedMultiSend = await ethers.getContractFactory(
       "TestableVerifiedMultiSend"
     );
+    const scopeSeed = ethers.keccak256(ethers.toUtf8Bytes("verified-multisend"));
     const multisend = await VerifiedMultiSend.connect(owner).deploy(
       hub.address,
-      "verified-multisend"
+      scopeSeed
     );
     await multisend.waitForDeployment();
 
