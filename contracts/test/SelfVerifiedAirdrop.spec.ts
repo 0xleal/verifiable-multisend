@@ -14,7 +14,7 @@ describe("SelfVerifiedAirdrop", () => {
     const VerifiedAirdrop = await ethers.getContractFactory(
       "TestableVerifiedAirdrop"
     );
-    const scopeSeed = ethers.keccak256(ethers.toUtf8Bytes("verified-airdrop"));
+    const scopeSeed = "verified-airdrop";
     const airdrop = await VerifiedAirdrop.connect(owner).deploy(
       hub.address,
       scopeSeed

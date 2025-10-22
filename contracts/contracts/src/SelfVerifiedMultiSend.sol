@@ -35,11 +35,11 @@ contract SelfVerifiedMultiSend is SelfVerificationRoot, Ownable {
 
     /**
      * @param identityVerificationHubAddress Address of Identity Verification Hub V2 (network specific)
-     * @param scopeSeed Scope value used for proof verification (typically derived from keccak256 of a string seed)
+     * @param scopeSeed Scope seed string used for proof verification
      */
     constructor(
         address identityVerificationHubAddress,
-        uint256 scopeSeed
+        string memory scopeSeed
     )
         SelfVerificationRoot(identityVerificationHubAddress, scopeSeed)
         Ownable(_msgSender())

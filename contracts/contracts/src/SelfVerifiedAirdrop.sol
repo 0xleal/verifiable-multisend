@@ -73,7 +73,7 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
 
     constructor(
         address identityVerificationHubAddress,
-        uint256 scopeSeed
+        string memory scopeSeed
     )
         SelfVerificationRoot(identityVerificationHubAddress, scopeSeed)
         Ownable(_msgSender())
