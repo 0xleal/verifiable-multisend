@@ -21,6 +21,7 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
         uint256 totalAmount;
         uint256 claimedAmount;
         address creator;
+        bool cancelled;
     }
 
     // ====================================================
@@ -72,7 +73,7 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
 
     constructor(
         address identityVerificationHubAddress,
-        string memory scopeSeed
+        uint256 scopeSeed
     )
         SelfVerificationRoot(identityVerificationHubAddress, scopeSeed)
         Ownable(_msgSender())
@@ -145,6 +146,7 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
     ) external view returns (bool) {
         Airdrop storage airdrop_ = airdrops[airdropId];
         if (airdrop_.merkleRoot == 0) return false; // Airdrop doesn't exist
+        if (airdrop_.cancelled) return false;
         if (hasClaimed[airdropId][user]) return false;
         if (airdrop_.claimedAmount + amount > airdrop_.totalAmount)
             return false;
@@ -163,14 +165,18 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
         address tokenAddress,
         uint256 totalAmount
     ) external onlyVerified {
-        if (airdrops[airdropId].merkleRoot != 0) revert AirdropExists();
+        if (
+            airdrops[airdropId].merkleRoot != 0 ||
+            airdrops[airdropId].cancelled
+        ) revert AirdropExists();
 
         airdrops[airdropId] = Airdrop({
             merkleRoot: merkleRoot,
             tokenAddress: tokenAddress,
             totalAmount: totalAmount,
             claimedAmount: 0,
-            creator: msg.sender
+            creator: msg.sender,
+            cancelled: false
         });
 
         IERC20(tokenAddress).safeTransferFrom(
@@ -186,14 +192,18 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
         bytes32 airdropId,
         bytes32 merkleRoot
     ) external payable onlyVerified {
-        if (airdrops[airdropId].merkleRoot != 0) revert AirdropExists();
+        if (
+            airdrops[airdropId].merkleRoot != 0 ||
+            airdrops[airdropId].cancelled
+        ) revert AirdropExists();
 
         airdrops[airdropId] = Airdrop({
             merkleRoot: merkleRoot,
             tokenAddress: address(0),
             totalAmount: msg.value,
             claimedAmount: 0,
-            creator: msg.sender
+            creator: msg.sender,
+            cancelled: false
         });
 
         emit AirdropCreated(airdropId, msg.sender, address(0), msg.value);
@@ -211,6 +221,7 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
     ) external onlyVerified {
         Airdrop storage airdrop_ = airdrops[airdropId];
         if (airdrop_.merkleRoot == 0) revert AirdropNotFound();
+        if (airdrop_.cancelled) revert AirdropAlreadyCancelled();
         if (hasClaimed[airdropId][msg.sender]) revert AlreadyClaimed();
 
         bytes32 node = keccak256(abi.encodePacked(index, msg.sender, amount));
@@ -243,11 +254,12 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
         Airdrop storage airdrop_ = airdrops[airdropId];
         if (airdrop_.merkleRoot == 0) revert AirdropNotFound();
         if (airdrop_.creator != msg.sender) revert NotCreator();
+        if (airdrop_.cancelled) revert AirdropAlreadyCancelled();
 
         uint256 refundAmount = airdrop_.totalAmount - airdrop_.claimedAmount;
 
-        // Mark as cancelled by setting merkleRoot to 0
-        airdrop_.merkleRoot = 0;
+        // Mark as cancelled
+        airdrop_.cancelled = true;
 
         if (refundAmount > 0) {
             if (airdrop_.tokenAddress == address(0)) {

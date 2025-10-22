@@ -46,7 +46,7 @@ interface AirdropData {
   txHash?: string;
 }
 
-const AIRDROP_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3" as `0x${string}`;
+const AIRDROP_CONTRACT_ADDRESS = "0x7c2a63e1713578d4d704b462c2dee311a59ae304" as `0x${string}`;
 
 export default function ClaimPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);

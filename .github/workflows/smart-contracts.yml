@@ -1,0 +1,89 @@
+name: Smart Contract Tests
+
+# Trigger conditions with intelligent path filtering
+on:
+  push:
+    branches: [main]
+    paths:
+      # Only run when smart contract-related files change
+      - 'contracts/**'              # Any file in contracts directory
+      - '.github/workflows/**'      # Workflow changes (to test CI updates)
+
+  pull_request:
+    paths:
+      # Same path filtering for PRs to skip unnecessary runs
+      - 'contracts/**'
+      - '.github/workflows/**'
+
+  # Allow manual workflow triggering for testing/debugging
+  workflow_dispatch:
+
+# Cancel outdated workflow runs on same PR to save resources
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test Smart Contracts
+    runs-on: ubuntu-latest
+
+    # Set default working directory for all run steps
+    defaults:
+      run:
+        working-directory: ./contracts
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.21.0'
+          # Cache node_modules based on package-lock.json for faster installs
+          cache: 'npm'
+          cache-dependency-path: contracts/package-lock.json
+
+      - name: Install dependencies
+        # Use 'npm ci' for deterministic, production-ready installs
+        # Faster than 'npm install' and validates package-lock.json
+        run: npm ci
+
+      - name: Run tests
+        # Hardhat automatically compiles contracts before running tests
+        run: npm test
+        # Optional: Enable gas reporting by uncommenting below
+        # env:
+        #   REPORT_GAS: true
+
+# Performance optimizations applied:
+# 1. Path filtering - skips ~90% of non-contract changes
+# 2. Node modules caching - saves 30-60s per run
+# 3. Concurrency control - cancels outdated runs on same PR
+# 4. npm ci - faster, more reliable than npm install
+# 5. Latest actions (v4) - improved performance and security
+
+# To add test coverage reporting:
+# - name: Generate coverage
+#   run: npm run coverage
+# - name: Upload coverage to Codecov
+#   uses: codecov/codecov-action@v4
+#   with:
+#     files: ./contracts/coverage/lcov.info
+
+# To add gas reporting as a separate job:
+# gas-report:
+#   name: Gas Report
+#   runs-on: ubuntu-latest
+#   steps:
+#     - uses: actions/checkout@v4
+#     - uses: actions/setup-node@v4
+#       with:
+#         node-version: '22.21.0'
+#         cache: 'npm'
+#         cache-dependency-path: contracts/package-lock.json
+#     - run: npm ci
+#       working-directory: ./contracts
+#     - run: npm run test:gas
+#       working-directory: ./contracts

@@ -14,9 +14,10 @@ describe("SelfVerifiedAirdrop", () => {
     const VerifiedAirdrop = await ethers.getContractFactory(
       "TestableVerifiedAirdrop"
     );
+    const scopeSeed = ethers.keccak256(ethers.toUtf8Bytes("verified-airdrop"));
     const airdrop = await VerifiedAirdrop.connect(owner).deploy(
       hub.address,
-      "verified-airdrop"
+      scopeSeed
     );
     await airdrop.waitForDeployment();
 
@@ -252,7 +253,7 @@ describe("SelfVerifiedAirdrop", () => {
 
       await expect(
         airdrop.connect(claimer2).claim(airdropId, 1, leaves[1].amount, proof2)
-      ).to.be.revertedWithCustomError(airdrop, "AirdropNotFound");
+      ).to.be.revertedWithCustomError(airdrop, "AirdropAlreadyCancelled");
     });
 
     it("should allow creator to cancel ETH airdrop and get refund", async () => {
@@ -408,6 +409,55 @@ describe("SelfVerifiedAirdrop", () => {
 
       const creatorBalanceAfter = await erc20.balanceOf(creator.address);
       expect(creatorBalanceAfter).to.equal(creatorBalanceBefore);
+    });
+
+    it("should revert on duplicate cancel and prohibit recreating same id", async () => {
+      const { hub, creator, claimer1, claimer2, erc20, airdrop } =
+        await deploy();
+
+      await verifyUser(airdrop, hub, creator);
+      await verifyUser(airdrop, hub, claimer1);
+      await verifyUser(airdrop, hub, claimer2);
+
+      const leaves = [
+        { address: claimer1.address, amount: ethers.parseEther("10") },
+        { address: claimer2.address, amount: ethers.parseEther("20") },
+      ];
+      const { merkleTree } = createMerkleTree(leaves);
+      const merkleRoot = merkleTree.getHexRoot();
+
+      const airdropId = ethers.id("duplicate-airdrop");
+      const totalAmount = ethers.parseEther("30");
+      await erc20.mint(creator.address, totalAmount);
+      await erc20
+        .connect(creator)
+        .approve(await airdrop.getAddress(), totalAmount);
+
+      await airdrop
+        .connect(creator)
+        .createAirdropERC20(
+          airdropId,
+          merkleRoot,
+          await erc20.getAddress(),
+          totalAmount
+        );
+
+      await airdrop.connect(creator).cancelAirdrop(airdropId);
+
+      await expect(
+        airdrop.connect(creator).cancelAirdrop(airdropId)
+      ).to.be.revertedWithCustomError(airdrop, "AirdropAlreadyCancelled");
+
+      await expect(
+        airdrop
+          .connect(creator)
+          .createAirdropERC20(
+            airdropId,
+            merkleRoot,
+            await erc20.getAddress(),
+            totalAmount
+          )
+      ).to.be.revertedWithCustomError(airdrop, "AirdropExists");
     });
   });
 });
