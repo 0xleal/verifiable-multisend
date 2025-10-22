@@ -11,8 +11,9 @@ import {ISelfVerificationRoot} from "@selfxyz/contracts/contracts/interfaces/ISe
 contract TestableVerificationRegistry is CeloVerificationRegistry {
     constructor(
         address hub,
-        string memory scopeSeed
-    ) CeloVerificationRegistry(hub, scopeSeed) {}
+        string memory scopeSeed,
+        address mailbox
+    ) CeloVerificationRegistry(hub, scopeSeed, mailbox) {}
 
     /**
      * @notice Public trigger function for testing verification

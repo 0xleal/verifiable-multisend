@@ -10,14 +10,15 @@ describe("SelfVerifiedMultiSend", () => {
     const erc20 = await TestERC20.deploy("Test", "TST");
     await erc20.waitForDeployment();
 
-    // Deploy verification registry
+    // Deploy verification registry (without cross-chain mailbox)
     const VerificationRegistry = await ethers.getContractFactory(
       "TestableVerificationRegistry"
     );
     const scopeSeed = "verified-multisend";
     const registry = await VerificationRegistry.connect(owner).deploy(
       hub.address,
-      scopeSeed
+      scopeSeed,
+      ethers.ZeroAddress // No mailbox needed for these tests
     );
     await registry.waitForDeployment();
 
