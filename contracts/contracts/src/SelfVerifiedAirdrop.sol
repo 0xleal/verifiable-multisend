@@ -4,11 +4,9 @@ pragma solidity ^0.8.28;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {SelfVerificationRoot} from "@selfxyz/contracts/contracts/abstract/SelfVerificationRoot.sol";
-import {ISelfVerificationRoot} from "@selfxyz/contracts/contracts/interfaces/ISelfVerificationRoot.sol";
+import {IVerificationRegistry} from "./interfaces/IVerificationRegistry.sol";
 
-contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
+contract SelfVerifiedAirdrop {
     using SafeERC20 for IERC20;
 
     // ====================================================
@@ -28,11 +26,11 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
     // Storage
     // ====================================================
 
+    /// @notice The verification registry to check user verification status
+    IVerificationRegistry public immutable verificationRegistry;
+
     mapping(bytes32 => Airdrop) public airdrops;
     mapping(bytes32 => mapping(address => bool)) public hasClaimed;
-
-    mapping(uint256 => uint256) internal _verificationExpiryByUserIdentifier;
-    bytes32 public verificationConfigId;
 
     // ====================================================
     // Events & Errors
@@ -54,10 +52,8 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
         address indexed creator,
         uint256 refundedAmount
     );
-    event SenderVerified(address indexed sender, uint256 expiresAt);
 
     error NotVerified();
-    error InvalidUserIdentifier();
     error AirdropExists();
     error AirdropNotFound();
     error AlreadyClaimed();
@@ -71,71 +67,26 @@ contract SelfVerifiedAirdrop is SelfVerificationRoot, Ownable {
     // Constructor
     // ====================================================
 
-    constructor(
-        address identityVerificationHubAddress,
-        string memory scopeSeed
-    )
-        SelfVerificationRoot(identityVerificationHubAddress, scopeSeed)
-        Ownable(_msgSender())
-    {}
+    /**
+     * @param _verificationRegistry Address of the verification registry contract
+     */
+    constructor(address _verificationRegistry) {
+        verificationRegistry = IVerificationRegistry(_verificationRegistry);
+    }
 
     // ====================================================
     // Modifiers
     // ====================================================
 
     modifier onlyVerified() {
-        if (!isVerified(msg.sender)) revert NotVerified();
+        if (!verificationRegistry.isVerified(msg.sender))
+            revert NotVerified();
         _;
-    }
-
-    // ====================================================
-    // Admin
-    // ====================================================
-
-    function setConfigId(bytes32 configId) external onlyOwner {
-        verificationConfigId = configId;
-    }
-
-    // ====================================================
-    // Self Verification
-    // ====================================================
-
-    function getConfigId(
-        bytes32 /* destinationChainId */,
-        bytes32 /* userIdentifier */,
-        bytes memory /* userDefinedData */
-    ) public view override returns (bytes32) {
-        return verificationConfigId;
-    }
-
-    function customVerificationHook(
-        ISelfVerificationRoot.GenericDiscloseOutputV2 memory output,
-        bytes memory /* userData */
-    ) internal override {
-        if (output.userIdentifier == 0) {
-            revert InvalidUserIdentifier();
-        }
-
-        uint256 expiresAt = block.timestamp + 30 days;
-        _verificationExpiryByUserIdentifier[output.userIdentifier] = expiresAt;
-
-        address sender = address(uint160(uint256(output.userIdentifier)));
-        emit SenderVerified(sender, expiresAt);
     }
 
     // ====================================================
     // Views
     // ====================================================
-
-    function verificationExpiresAt(
-        address account
-    ) public view returns (uint256) {
-        return _verificationExpiryByUserIdentifier[uint256(uint160(account))];
-    }
-
-    function isVerified(address account) public view returns (bool) {
-        return verificationExpiresAt(account) > block.timestamp;
-    }
 
     function canClaim(
         bytes32 airdropId,

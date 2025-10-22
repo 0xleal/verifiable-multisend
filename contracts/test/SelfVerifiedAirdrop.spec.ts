@@ -11,21 +11,29 @@ describe("SelfVerifiedAirdrop", () => {
     const erc20 = await TestERC20.deploy("Test", "TST");
     await erc20.waitForDeployment();
 
-    const VerifiedAirdrop = await ethers.getContractFactory(
-      "TestableVerifiedAirdrop"
+    // Deploy verification registry
+    const VerificationRegistry = await ethers.getContractFactory(
+      "TestableVerificationRegistry"
     );
     const scopeSeed = "verified-airdrop";
-    const airdrop = await VerifiedAirdrop.connect(owner).deploy(
+    const registry = await VerificationRegistry.connect(owner).deploy(
       hub.address,
       scopeSeed
     );
-    await airdrop.waitForDeployment();
+    await registry.waitForDeployment();
 
-    // Set config id
+    // Set config id on registry
     const cfgId = ethers.keccak256(
       ethers.toUtf8Bytes("verified-airdrop-config")
     );
-    await airdrop.connect(owner).setConfigId(cfgId);
+    await registry.connect(owner).setConfigId(cfgId);
+
+    // Deploy airdrop with registry
+    const VerifiedAirdrop = await ethers.getContractFactory(
+      "TestableVerifiedAirdrop"
+    );
+    const airdrop = await VerifiedAirdrop.deploy(await registry.getAddress());
+    await airdrop.waitForDeployment();
 
     return {
       deployer,
@@ -35,6 +43,7 @@ describe("SelfVerifiedAirdrop", () => {
       claimer1,
       claimer2,
       erc20,
+      registry,
       airdrop,
     };
   }
@@ -49,10 +58,10 @@ describe("SelfVerifiedAirdrop", () => {
     return ethers.concat([destinationChainId, userIdentifier32, data]);
   }
 
-  async function verifyUser(airdrop: any, hub: any, user: any) {
+  async function verifyUser(registry: any, hub: any, user: any) {
     const userIdentifier = BigInt(ethers.getBigInt(user.address));
     const userData = buildUserData(userIdentifier);
-    await airdrop.connect(hub).trigger(userData);
+    await registry.connect(hub).trigger(userData);
   }
 
   function createMerkleTree(leaves: { address: string; amount: bigint }[]) {
@@ -71,12 +80,13 @@ describe("SelfVerifiedAirdrop", () => {
   }
 
   it("should create and claim an ERC20 airdrop", async () => {
-    const { hub, creator, claimer1, claimer2, erc20, airdrop } = await deploy();
+    const { hub, creator, claimer1, claimer2, erc20, registry, airdrop } =
+      await deploy();
 
     // 1. Verify creator and claimers
-    await verifyUser(airdrop, hub, creator);
-    await verifyUser(airdrop, hub, claimer1);
-    await verifyUser(airdrop, hub, claimer2);
+    await verifyUser(registry, hub, creator);
+    await verifyUser(registry, hub, claimer1);
+    await verifyUser(registry, hub, claimer2);
 
     // 2. Create Merkle tree
     const leaves = [
@@ -137,11 +147,11 @@ describe("SelfVerifiedAirdrop", () => {
   });
 
   it("should create and claim an ETH airdrop", async () => {
-    const { hub, creator, claimer1, airdrop } = await deploy();
+    const { hub, creator, claimer1, registry, airdrop } = await deploy();
 
     // 1. Verify users
-    await verifyUser(airdrop, hub, creator);
-    await verifyUser(airdrop, hub, claimer1);
+    await verifyUser(registry, hub, creator);
+    await verifyUser(registry, hub, claimer1);
 
     // 2. Create Merkle tree
     const leaves = [
@@ -179,13 +189,13 @@ describe("SelfVerifiedAirdrop", () => {
 
   describe("cancelAirdrop", () => {
     it("should allow creator to cancel ERC20 airdrop and get refund", async () => {
-      const { hub, creator, claimer1, claimer2, erc20, airdrop } =
+      const { hub, creator, claimer1, claimer2, erc20, registry, airdrop } =
         await deploy();
 
       // 1. Verify creator and claimers
-      await verifyUser(airdrop, hub, creator);
-      await verifyUser(airdrop, hub, claimer1);
-      await verifyUser(airdrop, hub, claimer2);
+      await verifyUser(registry, hub, creator);
+      await verifyUser(registry, hub, claimer1);
+      await verifyUser(registry, hub, claimer2);
 
       // 2. Create Merkle tree
       const leaves = [
@@ -257,12 +267,13 @@ describe("SelfVerifiedAirdrop", () => {
     });
 
     it("should allow creator to cancel ETH airdrop and get refund", async () => {
-      const { hub, creator, claimer1, claimer2, airdrop } = await deploy();
+      const { hub, creator, claimer1, claimer2, registry, airdrop } =
+        await deploy();
 
       // 1. Verify users
-      await verifyUser(airdrop, hub, creator);
-      await verifyUser(airdrop, hub, claimer1);
-      await verifyUser(airdrop, hub, claimer2);
+      await verifyUser(registry, hub, creator);
+      await verifyUser(registry, hub, claimer1);
+      await verifyUser(registry, hub, claimer2);
 
       // 2. Create Merkle tree
       const leaves = [
@@ -312,11 +323,12 @@ describe("SelfVerifiedAirdrop", () => {
     });
 
     it("should revert if non-creator tries to cancel airdrop", async () => {
-      const { hub, creator, claimer1, erc20, airdrop } = await deploy();
+      const { hub, creator, claimer1, erc20, registry, airdrop } =
+        await deploy();
 
       // 1. Verify creator and claimer
-      await verifyUser(airdrop, hub, creator);
-      await verifyUser(airdrop, hub, claimer1);
+      await verifyUser(registry, hub, creator);
+      await verifyUser(registry, hub, claimer1);
 
       // 2. Create airdrop
       const leaves = [
@@ -348,7 +360,7 @@ describe("SelfVerifiedAirdrop", () => {
     });
 
     it("should revert if trying to cancel non-existent airdrop", async () => {
-      const { creator, airdrop } = await deploy();
+      const { creator, registry, airdrop } = await deploy();
 
       const nonExistentId = ethers.id("non-existent-airdrop");
 
@@ -358,11 +370,12 @@ describe("SelfVerifiedAirdrop", () => {
     });
 
     it("should handle cancellation when all funds have been claimed", async () => {
-      const { hub, creator, claimer1, erc20, airdrop } = await deploy();
+      const { hub, creator, claimer1, erc20, registry, airdrop } =
+        await deploy();
 
       // 1. Verify users
-      await verifyUser(airdrop, hub, creator);
-      await verifyUser(airdrop, hub, claimer1);
+      await verifyUser(registry, hub, creator);
+      await verifyUser(registry, hub, claimer1);
 
       // 2. Create airdrop
       const leaves = [
@@ -412,12 +425,12 @@ describe("SelfVerifiedAirdrop", () => {
     });
 
     it("should revert on duplicate cancel and prohibit recreating same id", async () => {
-      const { hub, creator, claimer1, claimer2, erc20, airdrop } =
+      const { hub, creator, claimer1, claimer2, erc20, registry, airdrop } =
         await deploy();
 
-      await verifyUser(airdrop, hub, creator);
-      await verifyUser(airdrop, hub, claimer1);
-      await verifyUser(airdrop, hub, claimer2);
+      await verifyUser(registry, hub, creator);
+      await verifyUser(registry, hub, claimer1);
+      await verifyUser(registry, hub, claimer2);
 
       const leaves = [
         { address: claimer1.address, amount: ethers.parseEther("10") },
