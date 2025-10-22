@@ -1,116 +1,44 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {SelfVerificationRoot} from "@selfxyz/contracts/contracts/abstract/SelfVerificationRoot.sol";
-import {ISelfVerificationRoot} from "@selfxyz/contracts/contracts/interfaces/ISelfVerificationRoot.sol";
+import {IVerificationRegistry} from "./interfaces/IVerificationRegistry.sol";
 
 /**
  * @title SelfVerifiedMultiSend
- * @notice Bulk transfers of ERC20 and ETH gated by Self.xyz verification with a 30-day expiry window.
+ * @notice Bulk transfers of ERC20 and ETH gated by verification registry with a 30-day expiry window.
  */
-contract SelfVerifiedMultiSend is SelfVerificationRoot, Ownable {
+contract SelfVerifiedMultiSend {
     // ====================================================
     // Storage
     // ====================================================
 
-    /// @notice Mapping of user identifier (uint256(address)) to unix timestamp when verification expires.
-    mapping(uint256 => uint256) internal _verificationExpiryByUserIdentifier;
-
-    /// @notice The verification config id enforced by the hub.
-    bytes32 public verificationConfigId;
+    /// @notice The verification registry to check sender verification status
+    IVerificationRegistry public immutable verificationRegistry;
 
     // ====================================================
-    // Events & Errors
+    // Errors
     // ====================================================
-
-    event SenderVerified(address indexed sender, uint256 expiresAt);
 
     error SenderNotVerified();
-    error InvalidUserIdentifier();
 
     // ====================================================
     // Constructor
     // ====================================================
 
     /**
-     * @param identityVerificationHubAddress Address of Identity Verification Hub V2 (network specific)
-     * @param scopeSeed Scope seed string used for proof verification
+     * @param _verificationRegistry Address of the verification registry contract
      */
-    constructor(
-        address identityVerificationHubAddress,
-        string memory scopeSeed
-    )
-        SelfVerificationRoot(identityVerificationHubAddress, scopeSeed)
-        Ownable(_msgSender())
-    {}
-
-    // ====================================================
-    // Admin
-    // ====================================================
-
-    /// @notice Sets the verification config id to enforce.
-    function setConfigId(bytes32 configId) external onlyOwner {
-        verificationConfigId = configId;
-    }
-
-    /// @notice Overrides the verification scope used by the hub.
-    /// @dev This should be used with caution. Frontend must use a matching scope seed/hash.
-    function setScope(uint256 newScope) external onlyOwner {
-        _scope = newScope;
-    }
-
-    // ====================================================
-    // SelfVerificationRoot overrides
-    // ====================================================
-
-    function getConfigId(
-        bytes32 /* destinationChainId */,
-        bytes32 /* userIdentifier */,
-        bytes memory /* userDefinedData */
-    ) public view override returns (bytes32) {
-        return verificationConfigId;
-    }
-
-    /**
-     * @dev Called by the hub after successful proof verification.
-     * Registers the caller's userIdentifier with a 30-day expiry.
-     */
-    function customVerificationHook(
-        ISelfVerificationRoot.GenericDiscloseOutputV2 memory output,
-        bytes memory /* userData */
-    ) internal override {
-        if (output.userIdentifier == 0) {
-            revert InvalidUserIdentifier();
-        }
-
-        uint256 expiresAt = block.timestamp + 30 days;
-        _verificationExpiryByUserIdentifier[output.userIdentifier] = expiresAt;
-
-        // Interpret userIdentifier as EVM address when using address-based user id
-        address sender = address(uint160(uint256(output.userIdentifier)));
-        emit SenderVerified(sender, expiresAt);
+    constructor(address _verificationRegistry) {
+        verificationRegistry = IVerificationRegistry(_verificationRegistry);
     }
 
     // ====================================================
     // Views
     // ====================================================
 
-    /// @notice Returns the scope used by this contract for proof verification.
-    function getScope() external view returns (uint256) {
-        return _scope;
-    }
-
-    /// @notice Returns the unix timestamp when verification expires for a given address.
-    function verificationExpiresAt(
-        address account
-    ) public view returns (uint256) {
-        return _verificationExpiryByUserIdentifier[uint256(uint160(account))];
-    }
-
     /// @notice Returns true if the given address is currently verified (not expired).
     function isSenderVerified(address account) public view returns (bool) {
-        return verificationExpiresAt(account) > block.timestamp;
+        return verificationRegistry.isVerified(account);
     }
 
     // ====================================================
