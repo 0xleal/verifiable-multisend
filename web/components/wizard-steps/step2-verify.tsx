@@ -32,7 +32,7 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
   const { address } = useAccount();
   const [verificationSuccess, setVerificationSuccess] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(
-    null,
+    null
   );
   const [selfApp, setSelfApp] = useState<any | null>(null);
 
@@ -71,7 +71,7 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
         userId,
         endpointType: verificationConfig.selfEndpointType,
         userIdType: "hex",
-        userDefinedData: "Sender verification for multisend",
+        userDefinedData: "Sender verification for HumanPay",
         disclosures: {
           minimumAge: 18,
           ofac: true,
@@ -211,7 +211,7 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
                       onError={(error) => {
                         console.error("Verification error:", error);
                         setVerificationError(
-                          "Verification failed. Please try again.",
+                          "Verification failed. Please try again."
                         );
                       }}
                     />

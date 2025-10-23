@@ -245,7 +245,7 @@ export function Step1Upload({ onNext, initialData }: Step1UploadProps) {
               <AlertDescription className="text-green-600 dark:text-green-400 text-sm">
                 Successfully parsed <strong>{parsedData.length}</strong>{" "}
                 recipients with a total of{" "}
-                <strong>{totalAmount.toLocaleString()}</strong> tokens
+                <strong>{totalAmount.toFixed(8)}</strong> tokens
               </AlertDescription>
             </Alert>
           )}
