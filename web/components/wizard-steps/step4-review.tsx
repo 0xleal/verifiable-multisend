@@ -40,14 +40,13 @@ import type { RecipientData } from "@/components/csv-upload";
 import type { DistributionConfig } from "./step3-configure";
 import { useAccount, useWriteContract, useSwitchChain } from "wagmi";
 import { parseEther, keccak256, toHex } from "viem";
-import { SelfVerifiedMultiSendAbi } from "@/lib/contracts/self-verified-multisend-abi";
 import { SelfVerifiedAirdropAbi } from "@/lib/contracts/self-verified-airdrop-abi";
-import { celoSepolia } from "wagmi/chains";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config as wagmiConfig } from "@/lib/wagmi-config";
 import { DistributionJourneySummary } from "@/components/distribution-journey-summary";
 import { createMerkleTree } from "@/lib/merkle";
 import { parseUnits } from "ethers";
+import { getChainConfig } from "@/lib/chain-config";
 
 interface Step4ReviewProps {
   onBack: () => void;
@@ -67,12 +66,16 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
   const [claimUrl, setClaimUrl] = useState<string>("");
   const [copied, setCopied] = useState(false);
 
-  // Contract addresses
-  const sendContractAddress =
-    "0xC2FE5379a4c096e097d47f760855B85edDF625e2".toLowerCase() as `0x${string}`;
-  const airdropContractAddress =
-    "0x5FbDB2315678afecb367f032d93F642f64180aa3".toLowerCase() as `0x${string}`; // TODO: Update with deployed contract
-  const chainId = celoSepolia.id;
+  // Get chain configuration based on selected chain
+  const targetChainConfig = getChainConfig(distributionConfig.chainId);
+  if (!targetChainConfig) {
+    throw new Error(`Unsupported chain ID: ${distributionConfig.chainId}`);
+  }
+
+  const distributionContractAddress = targetChainConfig.distributionContractAddress;
+  const distributionContractAbi = targetChainConfig.distributionContractAbi;
+  const airdropContractAddress = targetChainConfig.airdropContractAddress;
+  const targetChainId = targetChainConfig.chain.id;
 
   const totalAmount = useMemo(() => {
     return recipients.reduce((sum, r) => sum + Number(r.amount), 0);
@@ -93,8 +96,8 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
       return;
     }
 
-    if (!chain || chain.id !== celoSepolia.id) {
-      switchChain?.({ chainId: celoSepolia.id });
+    if (!chain || chain.id !== targetChainId) {
+      switchChain?.({ chainId: targetChainId });
       return;
     }
 
@@ -129,7 +132,7 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
         args: distributionConfig.tokenAddress
           ? [airdropIdHash, merkleData.root, distributionConfig.tokenAddress, value]
           : [airdropIdHash, merkleData.root],
-        chainId,
+        chainId: targetChainId,
         value: distributionConfig.tokenAddress ? undefined : value,
       } as any);
 
@@ -151,7 +154,8 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
           creator: address,
           createdAt: Date.now(),
           txHash: hash,
-          network: "celo-sepolia",
+          network: targetChainConfig.chain.name.toLowerCase().replace(/ /g, "-"),
+          chainId: targetChainId,
         };
 
         // CRITICAL: Save to localStorage FIRST (instant backup)
@@ -185,7 +189,9 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
           // Data is safe in localStorage and will be retried by auto-sync
         }
 
-        const url = `${window.location.origin}/claim/${distributionConfig.airdropId}`;
+        // Generate chain-specific claim URL
+        const chainSlug = targetChainId === 84532 ? "base" : "celo";
+        const url = `${window.location.origin}/claim/${chainSlug}/${distributionConfig.airdropId}`;
         setClaimUrl(url);
         setSuccess(true);
       } else {
@@ -205,8 +211,8 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
       return;
     }
 
-    if (!chain || chain.id !== celoSepolia.id) {
-      switchChain?.({ chainId: celoSepolia.id });
+    if (!chain || chain.id !== targetChainId) {
+      switchChain?.({ chainId: targetChainId });
       return;
     }
 
@@ -219,11 +225,11 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
       const value = amts.reduce((a, b) => a + b);
 
       const hash = await writeContractAsync({
-        address: sendContractAddress,
-        abi: SelfVerifiedMultiSendAbi,
+        address: distributionContractAddress,
+        abi: distributionContractAbi,
         functionName: "airdropETH",
         args: [addrs, amts],
-        chainId,
+        chainId: targetChainId,
         value,
       } as any);
 

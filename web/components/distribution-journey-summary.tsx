@@ -18,12 +18,12 @@ import {
   Coins,
   AlertTriangle,
   Clock,
+  Network,
 } from "lucide-react";
 import type { RecipientData } from "./csv-upload";
 import type { DistributionConfig } from "./wizard-steps/step3-configure";
 import { useAccount, useReadContract } from "wagmi";
-import { SelfVerifiedMultiSendAbi } from "@/lib/contracts/self-verified-multisend-abi";
-import { celoSepolia } from "wagmi/chains";
+import { getVerificationChainConfig, getChainConfig } from "@/lib/chain-config";
 
 interface DistributionJourneySummaryProps {
   recipients: RecipientData[];
@@ -36,13 +36,18 @@ export function DistributionJourneySummary({
 }: DistributionJourneySummaryProps) {
   const { address } = useAccount();
 
-  const contractAddress =
-    "0xC2FE5379a4c096e097d47f760855B85edDF625e2".toLowerCase() as `0x${string}`;
-  const chainId = celoSepolia.id;
+  // Always check verification on Celo (the verification source chain)
+  const verificationConfig = getVerificationChainConfig();
+  const contractAddress = verificationConfig.verificationRegistryAddress;
+  const chainId = verificationConfig.chain.id;
+
+  // Get target chain configuration
+  const targetChainConfig = getChainConfig(config.chainId);
+  const targetChainName = targetChainConfig?.chain.name || "Unknown";
 
   const { data: expiresAt } = useReadContract({
     address: contractAddress,
-    abi: SelfVerifiedMultiSendAbi,
+    abi: verificationConfig.verificationRegistryAbi,
     functionName: "verificationExpiresAt",
     args: [address ?? "0x0000000000000000000000000000000000000000"],
     chainId,
@@ -149,7 +154,14 @@ export function DistributionJourneySummary({
               <div className="flex items-center justify-between">
                 <span>Token:</span>
                 <Badge variant="secondary" className="text-xs">
-                  {config.tokenAddress || "Native CELO"}
+                  {config.tokenAddress || "Native"}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Chain:</span>
+                <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                  <Network className="h-3 w-3" />
+                  {targetChainName}
                 </Badge>
               </div>
             </div>
@@ -176,11 +188,15 @@ export function DistributionJourneySummary({
           <p className="text-xs text-muted-foreground">
             You're all set to distribute{" "}
             <span className="font-medium text-foreground">
-              {totalAmount.toLocaleString()} CELO
+              {totalAmount.toLocaleString()} tokens
             </span>{" "}
             to{" "}
             <span className="font-medium text-foreground">
               {recipients.length} {recipients.length === 1 ? "recipient" : "recipients"}
+            </span>
+            {" "}on{" "}
+            <span className="font-medium text-foreground">
+              {targetChainName}
             </span>
             .
           </p>

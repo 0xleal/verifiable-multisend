@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useAccount, useReadContract, useWriteContract, useSwitchChain } from "wagmi";
 import { formatEther, keccak256, toHex } from "viem";
-import { celoSepolia } from "wagmi/chains";
+import { celoSepolia, baseSepolia } from "wagmi/chains";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config as wagmiConfig } from "@/lib/wagmi-config";
 import {
@@ -25,9 +25,12 @@ import {
   Coins,
   ArrowLeft,
   Info,
+  Network,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { WalletConnectButton } from "@/components/wallet-connect-button";
 import { SelfVerifiedAirdropAbi } from "@/lib/contracts/self-verified-airdrop-abi";
+import { getChainConfig } from "@/lib/chain-config";
 
 interface AirdropData {
   id: string;
@@ -44,11 +47,15 @@ interface AirdropData {
   creator: string;
   createdAt: number;
   txHash?: string;
+  network?: string;
+  chainId?: number;
 }
 
-const AIRDROP_CONTRACT_ADDRESS = "0x7c2a63e1713578d4d704b462c2dee311a59ae304" as `0x${string}`;
-
-export default function ClaimPage({ params }: { params: Promise<{ id: string }> }) {
+export default function ClaimPage({
+  params
+}: {
+  params: Promise<{ chain: string; id: string }>
+}) {
   const resolvedParams = use(params);
   const { address, chain } = useAccount();
   const { writeContractAsync } = useWriteContract();
@@ -60,6 +67,33 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
   const [claiming, setClaiming] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Parse chain from URL
+  const chainSlug = resolvedParams.chain;
+  const targetChain = chainSlug === "base" ? baseSepolia : celoSepolia;
+  const chainConfig = getChainConfig(targetChain.id);
+
+  if (!chainConfig) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md mx-auto border-destructive">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="rounded-full bg-destructive/10 p-4">
+                <AlertCircle className="h-16 w-16 text-destructive" />
+              </div>
+            </div>
+            <CardTitle>Unsupported Chain</CardTitle>
+            <CardDescription>
+              The chain "{chainSlug}" is not supported
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  const AIRDROP_CONTRACT_ADDRESS = chainConfig.airdropContractAddress;
 
   // Fetch airdrop data from API
   useEffect(() => {
@@ -76,6 +110,14 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
           return;
         }
         const data: AirdropData = await response.json();
+
+        // Validate that the airdrop is on the correct chain
+        if (data.chainId && data.chainId !== targetChain.id) {
+          setError(`This airdrop is on ${data.network}, not ${targetChain.name}`);
+          setLoading(false);
+          return;
+        }
+
         setAirdropData(data);
       } catch (e) {
         console.error("Error fetching airdrop:", e);
@@ -86,7 +128,7 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
     }
 
     fetchAirdropData();
-  }, [resolvedParams.id]);
+  }, [resolvedParams.id, targetChain.id, targetChain.name]);
 
   // Check if airdrop exists onchain
   const { data: onchainAirdrop, isLoading: isLoadingOnchain } = useReadContract({
@@ -94,6 +136,7 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
     abi: SelfVerifiedAirdropAbi,
     functionName: "airdrops",
     args: airdropData ? [keccak256(toHex(airdropData.id))] : undefined,
+    chainId: targetChain.id,
     query: {
       enabled: !!airdropData,
     },
@@ -105,6 +148,7 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
     abi: SelfVerifiedAirdropAbi,
     functionName: "isVerified",
     args: address ? [address] : undefined,
+    chainId: targetChain.id,
     query: {
       enabled: !!address,
     },
@@ -116,6 +160,7 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
     abi: SelfVerifiedAirdropAbi,
     functionName: "hasClaimed",
     args: airdropData && address ? [keccak256(toHex(airdropData.id)), address] : undefined,
+    chainId: targetChain.id,
     query: {
       enabled: !!airdropData && !!address,
     },
@@ -131,8 +176,8 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
       return;
     }
 
-    if (chain?.id !== celoSepolia.id) {
-      switchChain?.({ chainId: celoSepolia.id });
+    if (chain?.id !== targetChain.id) {
+      switchChain?.({ chainId: targetChain.id });
       return;
     }
 
@@ -150,7 +195,7 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
           BigInt(userAllocation.amount),
           userAllocation.proof as `0x${string}`[],
         ],
-        chainId: celoSepolia.id,
+        chainId: targetChain.id,
       } as any);
 
       setTxHash(hash);
@@ -188,8 +233,8 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
-  // Error state - airdrop not found
-  if (error === "Airdrop not found" || !airdropData) {
+  // Error state - airdrop not found or chain mismatch
+  if (error || !airdropData) {
     return (
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">
@@ -212,9 +257,9 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
                   <AlertCircle className="h-16 w-16 text-destructive" />
                 </div>
               </div>
-              <CardTitle>Airdrop Not Found</CardTitle>
+              <CardTitle>Error</CardTitle>
               <CardDescription>
-                This airdrop doesn't exist or the link is invalid
+                {error || "Airdrop not found"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -241,7 +286,15 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
               <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
                 <Gift className="h-6 w-6 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-bold">Claim Successful!</h1>
+              <div>
+                <h1 className="text-xl font-bold">Claim Successful!</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="secondary" className="text-xs">
+                    <Network className="h-3 w-3 mr-1" />
+                    {targetChain.name}
+                  </Badge>
+                </div>
+              </div>
             </div>
           </div>
         </header>
@@ -263,13 +316,19 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Amount</span>
                   <span className="font-semibold">
-                    {userAllocation ? formatEther(BigInt(userAllocation.amount)) : "0"} CELO
+                    {userAllocation ? formatEther(BigInt(userAllocation.amount)) : "0"} {targetChain.nativeCurrency.symbol}
                   </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Network</span>
+                  <Badge variant="outline" className="text-xs">
+                    {targetChain.name}
+                  </Badge>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Transaction</span>
                   <a
-                    href={`${chain?.blockExplorers?.default.url}/tx/${txHash}`}
+                    href={`${targetChain?.blockExplorers?.default.url}/tx/${txHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:underline font-mono text-xs inline-flex items-center gap-1"
@@ -281,7 +340,7 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
               </div>
               <Button
                 onClick={() =>
-                  window.open(`${chain?.blockExplorers?.default.url}/tx/${txHash}`, "_blank")
+                  window.open(`${targetChain?.blockExplorers?.default.url}/tx/${txHash}`, "_blank")
                 }
                 className="w-full"
               >
@@ -311,9 +370,15 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
             </div>
             <div>
               <h1 className="text-xl font-bold">Claim Airdrop</h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">
-                {airdropData.id}
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-xs text-muted-foreground hidden sm:block">
+                  {airdropData.id}
+                </p>
+                <Badge variant="secondary" className="text-xs">
+                  <Network className="h-3 w-3 mr-1" />
+                  {targetChain.name}
+                </Badge>
+              </div>
             </div>
           </div>
           <WalletConnectButton />
@@ -335,12 +400,16 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
                 <div>
                   <p className="text-sm text-muted-foreground">Total Amount</p>
                   <p className="font-semibold">
-                    {formatEther(BigInt(airdropData.totalAmount))} CELO
+                    {formatEther(BigInt(airdropData.totalAmount))} {targetChain.nativeCurrency.symbol}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Recipients</p>
                   <p className="font-semibold">{airdropData.recipients.length}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Network</p>
+                  <Badge variant="outline">{targetChain.name}</Badge>
                 </div>
               </div>
             </CardContent>
@@ -455,7 +524,7 @@ export default function ClaimPage({ params }: { params: Promise<{ id: string }> 
                   <p className="text-4xl font-bold text-green-600 dark:text-green-400">
                     {formatEther(BigInt(userAllocation.amount))}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1">CELO tokens</p>
+                  <p className="text-sm text-muted-foreground mt-1">{targetChain.nativeCurrency.symbol} tokens</p>
                 </div>
 
                 {error && (

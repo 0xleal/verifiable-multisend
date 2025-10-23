@@ -20,9 +20,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useAccount, useReadContract } from "wagmi";
-import { SelfVerifiedMultiSendAbi } from "@/lib/contracts/self-verified-multisend-abi";
 import { SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
-import { celoSepolia } from "wagmi/chains";
+import { getVerificationChainConfig } from "@/lib/chain-config";
 
 interface Step2VerifyProps {
   onNext: () => void;
@@ -35,14 +34,15 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
   const [verificationError, setVerificationError] = useState<string | null>(null);
   const [selfApp, setSelfApp] = useState<any | null>(null);
 
-  const contractAddress =
-    "0xC2FE5379a4c096e097d47f760855B85edDF625e2".toLowerCase() as `0x${string}`;
-  const chainId = celoSepolia.id;
-  const scopeSeed = "self-backed-sender";
+  // Always use Celo for verification (even if user wants to distribute on Base)
+  const verificationConfig = getVerificationChainConfig();
+  const contractAddress = verificationConfig.verificationRegistryAddress;
+  const chainId = verificationConfig.chain.id;
+  const scopeSeed = verificationConfig.scopeSeed;
 
   const { data: expiresAt, refetch: refetchExpiresAt } = useReadContract({
     address: contractAddress,
-    abi: SelfVerifiedMultiSendAbi,
+    abi: verificationConfig.verificationRegistryAbi,
     functionName: "verificationExpiresAt",
     args: [address ?? "0x0000000000000000000000000000000000000000"],
     chainId,
@@ -67,7 +67,7 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
         scope: scopeSeed,
         endpoint: contractAddress,
         userId,
-        endpointType: "staging_celo",
+        endpointType: verificationConfig.selfEndpointType,
         userIdType: "hex",
         userDefinedData: "Sender verification for multisend",
         disclosures: {
@@ -80,7 +80,7 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
       console.error("Failed to init Self app", e);
       setVerificationError("Failed to initialize verification");
     }
-  }, [scopeSeed, address, contractAddress]);
+  }, [scopeSeed, address, contractAddress, verificationConfig.selfEndpointType]);
 
   const handleNext = () => {
     if (isVerified) {

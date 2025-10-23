@@ -20,15 +20,19 @@ import {
   Zap,
   Users,
   Info,
+  Network,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { celoSepolia, baseSepolia } from "wagmi/chains";
+import { SUPPORTED_CHAINS } from "@/lib/chain-config";
 
 export type DistributionMode = "send" | "claim";
 export interface DistributionConfig {
   mode: DistributionMode;
   tokenAddress: string;
   airdropId?: string; // Unique identifier for claim mode
+  chainId: number; // Target chain for distribution
 }
 
 interface Step3ConfigureProps {
@@ -51,9 +55,12 @@ export function Step3Configure({
   const [airdropId, setAirdropId] = useState(
     initialConfig?.airdropId || ""
   );
+  const [chainId, setChainId] = useState<number>(
+    initialConfig?.chainId || celoSepolia.id
+  );
 
   const handleNext = () => {
-    onNext({ mode, tokenAddress, airdropId });
+    onNext({ mode, tokenAddress, airdropId, chainId });
   };
 
   const isValidAirdropId = (id: string) => {
@@ -171,6 +178,65 @@ export function Step3Configure({
             </div>
           </div>
 
+          {/* Chain Selection */}
+          <div className="space-y-3">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <Network className="h-4 w-4" />
+              Target Network
+            </Label>
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Celo Sepolia */}
+              <button
+                onClick={() => setChainId(celoSepolia.id)}
+                className={cn(
+                  "relative p-4 rounded-lg border-2 transition-all text-left",
+                  "hover:border-primary/50 hover:shadow-sm",
+                  chainId === celoSepolia.id
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-border"
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 space-y-1">
+                    <div className="font-semibold flex items-center gap-2">
+                      {celoSepolia.name}
+                      <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">
+                        Recommended
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Primary verification chain
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Base Sepolia */}
+              <button
+                onClick={() => setChainId(baseSepolia.id)}
+                className={cn(
+                  "relative p-4 rounded-lg border-2 transition-all text-left",
+                  "hover:border-primary/50 hover:shadow-sm",
+                  chainId === baseSepolia.id
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-border"
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 space-y-1">
+                    <div className="font-semibold">{baseSepolia.name}</div>
+                    <p className="text-xs text-muted-foreground">
+                      Cross-chain distribution
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Note: Verification always happens on Celo Sepolia, regardless of the target chain.
+            </p>
+          </div>
+
           {/* Airdrop ID - only for claim mode */}
           {mode === "claim" && (
             <div className="space-y-3">
@@ -197,7 +263,7 @@ export function Step3Configure({
               )}
               {airdropId && isValidAirdropId(airdropId) && (
                 <p className="text-sm text-green-600 dark:text-green-400">
-                  Claim URL will be: {window.location.origin}/claim/{airdropId}
+                  Claim URL will be: {window.location.origin}/claim/{chainId === baseSepolia.id ? "base" : "celo"}/{airdropId}
                 </p>
               )}
             </div>
