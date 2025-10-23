@@ -21,22 +21,23 @@ import {
  * Usage:
  *   npx hardhat run scripts/multichain/deploy-base.ts --network base_sepolia
  */
+
+// Helper to ensure clean nonce management
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function main() {
   console.log("\n🚀 Deploying HumanPay to Base Sepolia...\n");
 
   // Validate environment
   validateEnvironment();
-
-  // Load Celo addresses
-  const deployedAddresses = loadDeployedAddresses();
-  const celoRegistry = deployedAddresses.celoSepolia?.registry;
+  const celoRegistry = "0xEe6A46D2E961021db4852adde243c28DA1bD53f1";
 
   if (!celoRegistry) {
     console.warn(
-      "⚠️  Warning: Celo registry address not found in deployed-addresses.json"
+      "⚠️  Warning: Celo registry address not found in deployed-addresses.json",
     );
     console.warn(
-      "   You'll need to manually add the Celo registry as a trusted sender later."
+      "   You'll need to manually add the Celo registry as a trusted sender later.",
     );
   } else {
     console.log(`📋 Celo Registry (for trusted sender): ${celoRegistry}`);
@@ -61,7 +62,7 @@ async function main() {
 
   if (balance < ethers.parseEther("0.01")) {
     console.warn(
-      "⚠️  Warning: Low balance. You may need more ETH for deployment."
+      "⚠️  Warning: Low balance. You may need more ETH for deployment.",
     );
   }
 
@@ -83,24 +84,27 @@ async function main() {
       const celoRegistryContract = await ethers.getContractAt(
         "CeloVerificationRegistry",
         celoRegistry,
-        celoProvider
+        celoProvider,
       );
       scope = await celoRegistryContract.getScope();
       console.log(`✓ Scope from Celo: ${scope}`);
     } catch (error) {
       console.warn(
-        `⚠️  Could not fetch scope from Celo. Using calculated value.`
+        `⚠️  Could not fetch scope from Celo. Using calculated value.`,
       );
       // Fallback: calculate scope hash manually
       const scopeHash = ethers.keccak256(
-        ethers.solidityPacked(["string", "address"], [VERIFICATION_SCOPE_SEED, celoRegistry])
+        ethers.solidityPacked(
+          ["string", "address"],
+          [VERIFICATION_SCOPE_SEED, celoRegistry],
+        ),
       );
       scope = BigInt(scopeHash);
       console.log(`⚠️  Calculated scope: ${scope}`);
     }
   } else {
     console.warn(
-      `⚠️  No Celo registry address. Using default scope. You MUST update this!`
+      `⚠️  No Celo registry address. Using default scope. You MUST update this!`,
     );
     scope = BigInt(12345); // Placeholder
   }
@@ -109,40 +113,41 @@ async function main() {
   console.log("\n📝 [1/3] Deploying CrossChainVerificationRegistry...");
 
   const CrossChainRegistry = await ethers.getContractFactory(
-    "CrossChainVerificationRegistry"
+    "CrossChainVerificationRegistry",
   );
   const baseRegistry = await CrossChainRegistry.deploy(
     baseConfig.hyperlane.mailbox,
     celoConfig.hyperlane.domain, // Source domain (Celo)
-    scope // Scope from Celo registry
+    scope, // Scope from Celo registry
   );
   await baseRegistry.waitForDeployment();
 
   const registryAddress = await baseRegistry.getAddress();
-  console.log(
-    `✅ CrossChainVerificationRegistry deployed: ${registryAddress}`
-  );
+  console.log(`✅ CrossChainVerificationRegistry deployed: ${registryAddress}`);
   console.log(`   ✓ Source domain: ${celoConfig.hyperlane.domain} (Celo)`);
   console.log(`   ✓ Scope: ${scope}`);
-  console.log(
-    `   ✓ Trusted sender enforcement: ${await baseRegistry.enforceTrustedSenders()}`
-  );
 
   // Add Celo registry as trusted sender if we have it
   if (celoRegistry) {
     console.log(`   🔐 Adding Celo registry as trusted sender...`);
     const addTx = await baseRegistry.addTrustedSender(celoRegistry);
-    await addTx.wait();
+    await addTx.wait(2); // Wait for 2 confirmations
     console.log(`   ✓ Trusted sender added: ${celoRegistry}`);
+
+    // Small delay to ensure nonce sync
+    await sleep(2000);
 
     // Enable enforcement
     console.log(`   🔒 Enabling trusted sender enforcement...`);
     const enforceTx = await baseRegistry.setTrustedSenderEnforcement(true);
-    await enforceTx.wait();
+    await enforceTx.wait(2); // Wait for 2 confirmations
     console.log(`   ✓ Enforcement enabled`);
+
+    // Small delay before next deployment
+    await sleep(2000);
   } else {
     console.warn(
-      `   ⚠️  Skipping trusted sender setup. Add manually after deployment.`
+      `   ⚠️  Skipping trusted sender setup. Add manually after deployment.`,
     );
   }
 
@@ -156,6 +161,9 @@ async function main() {
   const multiSendAddress = await multiSend.getAddress();
   console.log(`✅ SelfVerifiedMultiSend deployed: ${multiSendAddress}`);
   console.log(`   ✓ Connected to registry: ${registryAddress}`);
+
+  // Small delay before next deployment
+  await sleep(2000);
 
   // ===== 3. Deploy SelfVerifiedAirdrop =====
   console.log("\n📝 [3/3] Deploying SelfVerifiedAirdrop...");
@@ -179,13 +187,13 @@ async function main() {
 
   console.log(`\n🔗 Block Explorer URLs:`);
   console.log(
-    `   Registry:  https://sepolia.basescan.org/address/${registryAddress}`
+    `   Registry:  https://sepolia.basescan.org/address/${registryAddress}`,
   );
   console.log(
-    `   MultiSend: https://sepolia.basescan.org/address/${multiSendAddress}`
+    `   MultiSend: https://sepolia.basescan.org/address/${multiSendAddress}`,
   );
   console.log(
-    `   Airdrop:   https://sepolia.basescan.org/address/${airdropAddress}`
+    `   Airdrop:   https://sepolia.basescan.org/address/${airdropAddress}`,
   );
 
   if (celoRegistry) {
@@ -193,7 +201,7 @@ async function main() {
     console.log(`   Celo Registry: ${celoRegistry}`);
     console.log(`   Status: ✅ Added and enforced`);
     console.log(
-      `   Verify: baseRegistry.isTrustedSender("${celoRegistry}") should return true`
+      `   Verify: baseRegistry.isTrustedSender("${celoRegistry}") should return true`,
     );
   }
 
@@ -201,20 +209,20 @@ async function main() {
   console.log(`   1. Verify contracts on Basescan (optional)`);
   if (!celoRegistry) {
     console.log(
-      `   2. Add Celo registry as trusted sender: baseRegistry.addTrustedSender(celoRegistryAddress)`
+      `   2. Add Celo registry as trusted sender: baseRegistry.addTrustedSender(celoRegistryAddress)`,
     );
     console.log(
-      `   3. Enable enforcement: baseRegistry.setTrustedSenderEnforcement(true)`
+      `   3. Enable enforcement: baseRegistry.setTrustedSenderEnforcement(true)`,
     );
   }
   console.log(
-    `   ${celoRegistry ? "2" : "4"}. Test verification on Celo with Self.xyz app`
+    `   ${celoRegistry ? "2" : "4"}. Test verification on Celo with Self.xyz app`,
   );
   console.log(
-    `   ${celoRegistry ? "3" : "5"}. Relay verification to Base: npx hardhat run scripts/multichain/relay-verification.ts`
+    `   ${celoRegistry ? "3" : "5"}. Relay verification to Base: npx hardhat run scripts/multichain/relay-verification.ts`,
   );
   console.log(
-    `   ${celoRegistry ? "4" : "6"}. Test MultiSend/Airdrop on Base!`
+    `   ${celoRegistry ? "4" : "6"}. Test MultiSend/Airdrop on Base!`,
   );
 
   // Save addresses

@@ -1,0 +1,12 @@
+{
+  "celoSepolia": {
+    "registry": "0xEe6A46D2E961021db4852adde243c28DA1bD53f1",
+    "multiSend": "0x5A9cC776EEB1DD7661a2a048a1c50Da6315f4b92",
+    "airdrop": "0x09fA00cAA728f873D76675fE4AdEB90427c767CF"
+  },
+  "baseSepolia": {
+    "registry": "0x73336E60E2D49Fa8485FA6C9E22fB27a1F7bad8d",
+    "multiSend": "0xA12EDFa6B98897c47C4Ff74bCD2fd186DFa97BF6",
+    "airdrop": "0xB68adc32810e99bfEc240a6dFD66c3cA90668028"
+  }
+}

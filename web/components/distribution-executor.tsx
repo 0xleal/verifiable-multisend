@@ -36,6 +36,7 @@ import { SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
 import { celoSepolia } from "wagmi/chains";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/lib/wagmi-config";
+import { getVerificationChainConfig, getChainConfig } from "@/lib/chain-config";
 
 // NOTE: We build the Self app config once per address/scope and pass it to SelfQRcodeWrapper
 import type { RecipientData } from "./csv-upload";
@@ -73,28 +74,24 @@ export function DistributionExecutor({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successTxHash, setSuccessTxHash] = useState<string | null>(null);
 
-  const contractAddress =
-    "0x33041027dd8F4dC82B6e825FB37ADf8f15d44053".toLowerCase() as `0x${string}`;
-  const chainId = celoSepolia.id;
+  // Get verification registry address from chain config (always Celo for Self verification)
+  const verificationConfig = getVerificationChainConfig();
+  const verificationRegistryAddress =
+    verificationConfig.verificationRegistryAddress;
+  const scopeSeed = verificationConfig.scopeSeed;
 
-  // const { data: scope } = useReadContract({
-  //   address: contractAddress,
-  //   abi: SelfVerifiedMultiSendAbi,
-  //   functionName: "getScope",
-  //   chainId,
-  //   query: { enabled: !!contractAddress },
-  // } as any);
-
-  // Self frontend expects the short scope seed string, not the on-chain scope hash/uint256
-  const scopeSeed = "self-backed-sender";
+  // Get distribution contract for the user's current chain
+  const currentChainConfig = chain?.id ? getChainConfig(chain.id) : null;
+  const distributionContractAddress =
+    currentChainConfig?.distributionContractAddress;
 
   const { data: expiresAt, refetch: refetchExpiresAt } = useReadContract({
-    address: contractAddress,
-    abi: SelfVerifiedMultiSendAbi,
+    address: verificationRegistryAddress,
+    abi: verificationConfig.verificationRegistryAbi,
     functionName: "verificationExpiresAt",
     args: [address ?? "0x0000000000000000000000000000000000000000"],
-    chainId,
-    query: { enabled: !!contractAddress && !!address },
+    chainId: verificationConfig.chain.id,
+    query: { enabled: !!verificationRegistryAddress && !!address },
   } as any);
 
   const isVerified = useMemo(() => {
@@ -107,18 +104,18 @@ export function DistributionExecutor({
   const [selfApp, setSelfApp] = useState<any | null>(null);
 
   useEffect(() => {
-    if (!scopeSeed || !contractAddress) return;
+    if (!scopeSeed || !verificationRegistryAddress) return;
     const userId =
       (address as string) || "0x0000000000000000000000000000000000000000";
     try {
       const app = new SelfAppBuilder({
         version: 2,
         appName: "Verifiable Multisend",
-        scope: "self-backed-sender",
-        // Point Self to the on-chain contract endpoint (Celo testnet)
-        endpoint: contractAddress,
+        scope: scopeSeed,
+        // Point Self to the on-chain contract endpoint (verification registry)
+        endpoint: verificationRegistryAddress,
         userId,
-        endpointType: "staging_celo",
+        endpointType: verificationConfig.selfEndpointType,
         userIdType: "hex",
         userDefinedData: "Sender verification for multisend",
         disclosures: {
@@ -130,7 +127,7 @@ export function DistributionExecutor({
     } catch (e) {
       console.error("Failed to init Self app", e);
     }
-  }, [scopeSeed, address, contractAddress]);
+  }, [scopeSeed, address, verificationRegistryAddress, verificationConfig.selfEndpointType]);
 
   const totalEth = useMemo(() => {
     try {
@@ -165,8 +162,8 @@ export function DistributionExecutor({
       return;
     }
 
-    if (!chain || chain.id !== celoSepolia.id) {
-      switchChain?.({ chainId: celoSepolia.id });
+    if (!currentChainConfig) {
+      alert("Please switch to a supported chain (Celo Sepolia or Base Sepolia)");
       return;
     }
 
@@ -180,8 +177,8 @@ export function DistributionExecutor({
       return;
     }
 
-    if (!contractAddress) {
-      alert("Missing contract address configuration");
+    if (!distributionContractAddress) {
+      alert("Missing distribution contract address configuration");
       return;
     }
 
@@ -192,11 +189,11 @@ export function DistributionExecutor({
       const value = amts.reduce((a, b) => a + b);
 
       const txHash = await writeContractAsync({
-        address: contractAddress,
+        address: distributionContractAddress,
         abi: SelfVerifiedMultiSendAbi,
         functionName: "airdropETH",
         args: [addrs, amts],
-        chainId,
+        chainId: chain!.id,
         value,
       } as any);
 

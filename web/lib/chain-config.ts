@@ -24,29 +24,29 @@ export const CHAIN_CONFIGS: Record<number, ChainConfig> = {
   [celoSepolia.id]: {
     chain: celoSepolia,
     verificationRegistryAddress:
-      "0xC2FE5379a4c096e097d47f760855B85edDF625e2".toLowerCase() as `0x${string}`,
+      "0xEe6A46D2E961021db4852adde243c28DA1bD53f1".toLowerCase() as `0x${string}`,
     verificationRegistryAbi: CeloVerificationRegistryAbi,
     distributionContractAddress:
-      "0xC2FE5379a4c096e097d47f760855B85edDF625e2".toLowerCase() as `0x${string}`, // TODO: Update with actual SelfVerifiedMultiSend address
+      "0x5A9cC776EEB1DD7661a2a048a1c50Da6315f4b92".toLowerCase() as `0x${string}`,
     distributionContractAbi: SelfVerifiedMultiSendAbi,
     airdropContractAddress:
-      "0x7c2a63e1713578d4d704b462c2dee311a59ae304".toLowerCase() as `0x${string}`, // TODO: Update with actual SelfVerifiedAirdrop address
+      "0x09fA00cAA728f873D76675fE4AdEB90427c767CF".toLowerCase() as `0x${string}`,
     canVerifyDirectly: true,
-    scopeSeed: "self-backed-sender",
+    scopeSeed: "humanpay-multichain",
     selfEndpointType: "staging_celo",
   },
   [baseSepolia.id]: {
     chain: baseSepolia,
     verificationRegistryAddress:
-      "0x0000000000000000000000000000000000000000".toLowerCase() as `0x${string}`, // TODO: Update with actual Base Sepolia verification registry address
+      "0x73336E60E2D49Fa8485FA6C9E22fB27a1F7bad8d".toLowerCase() as `0x${string}`,
     verificationRegistryAbi: CrossChainVerificationRegistryAbi,
     distributionContractAddress:
-      "0x0000000000000000000000000000000000000000".toLowerCase() as `0x${string}`, // TODO: Update with actual Base Sepolia distribution contract address
+      "0xA12EDFa6B98897c47C4Ff74bCD2fd186DFa97BF6".toLowerCase() as `0x${string}`,
     distributionContractAbi: SelfVerifiedMultiSendAbi,
     airdropContractAddress:
-      "0x0000000000000000000000000000000000000000".toLowerCase() as `0x${string}`, // TODO: Update with actual Base Sepolia airdrop contract address
+      "0xB68adc32810e99bfEc240a6dFD66c3cA90668028".toLowerCase() as `0x${string}`,
     canVerifyDirectly: false, // Base receives verifications via Hyperlane
-    scopeSeed: "self-backed-sender",
+    scopeSeed: "humanpay-multichain",
     selfEndpointType: "staging_celo", // Always verify on Celo
   },
 };
