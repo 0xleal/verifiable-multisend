@@ -16,7 +16,7 @@ export interface ChainConfig {
   airdropContractAddress: `0x${string}`; // SelfVerifiedAirdrop contract for claim mode
   canVerifyDirectly: boolean; // Can verify Self proofs on this chain
   scopeSeed: string;
-  selfEndpointType: "staging_celo" | "staging_base";
+  selfEndpointType: "staging_celo"; // Always verify on Celo
 }
 
 // Contract addresses for each chain
@@ -47,7 +47,7 @@ export const CHAIN_CONFIGS: Record<number, ChainConfig> = {
       "0xB68adc32810e99bfEc240a6dFD66c3cA90668028".toLowerCase() as `0x${string}`,
     canVerifyDirectly: false, // Base receives verifications via Hyperlane
     scopeSeed: "humanpay-multichain",
-    selfEndpointType: "staging_celo", // Always verify on Celo
+    selfEndpointType: "staging_celo", // Verification always happens on Celo
   },
 };
 

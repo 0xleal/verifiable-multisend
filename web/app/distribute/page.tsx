@@ -14,6 +14,7 @@ import {
 } from "@/components/wizard-steps/step3-configure";
 import { Step4Review } from "@/components/wizard-steps/step4-review";
 import type { RecipientData } from "@/components/csv-upload";
+import { celoSepolia } from "wagmi/chains";
 
 const STEPS = [
   {
@@ -45,6 +46,7 @@ export default function DistributePage() {
   const [config, setConfig] = useState<DistributionConfig>({
     mode: "send",
     tokenAddress: "",
+    chainId: celoSepolia.id,
   });
   const [direction, setDirection] = useState<"forward" | "back">("forward");
   const [animationKey, setAnimationKey] = useState(0);
