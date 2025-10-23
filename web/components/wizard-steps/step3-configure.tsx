@@ -47,16 +47,14 @@ export function Step3Configure({
   initialConfig,
 }: Step3ConfigureProps) {
   const [mode, setMode] = useState<DistributionMode>(
-    initialConfig?.mode || "send"
+    initialConfig?.mode || "send",
   );
   const [tokenAddress, setTokenAddress] = useState(
-    initialConfig?.tokenAddress || ""
+    initialConfig?.tokenAddress || "",
   );
-  const [airdropId, setAirdropId] = useState(
-    initialConfig?.airdropId || ""
-  );
+  const [airdropId, setAirdropId] = useState(initialConfig?.airdropId || "");
   const [chainId, setChainId] = useState<number>(
-    initialConfig?.chainId || celoSepolia.id
+    initialConfig?.chainId || celoSepolia.id,
   );
 
   const handleNext = () => {
@@ -67,12 +65,15 @@ export function Step3Configure({
     return /^[a-z0-9-]+$/.test(id) && id.length >= 3 && id.length <= 50;
   };
 
-  const canProceed = mode === "send" || (mode === "claim" && isValidAirdropId(airdropId));
+  const canProceed =
+    mode === "send" || (mode === "claim" && isValidAirdropId(airdropId));
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl md:text-3xl font-bold">Configure Distribution</h2>
+        <h2 className="text-2xl md:text-3xl font-bold">
+          Configure Distribution
+        </h2>
         <p className="text-muted-foreground text-sm md:text-base">
           Choose how you want to distribute tokens
         </p>
@@ -101,7 +102,7 @@ export function Step3Configure({
                   "hover:border-primary/50 hover:shadow-sm",
                   mode === "send"
                     ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border"
+                    : "border-border",
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -110,7 +111,7 @@ export function Step3Configure({
                       "rounded-full p-2 transition-colors",
                       mode === "send"
                         ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
+                        : "bg-muted text-muted-foreground",
                     )}
                   >
                     <Send className="h-5 w-5" />
@@ -147,7 +148,7 @@ export function Step3Configure({
                   "hover:border-primary/50 hover:shadow-sm",
                   mode === "claim"
                     ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border"
+                    : "border-border",
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -156,7 +157,7 @@ export function Step3Configure({
                       "rounded-full p-2 transition-colors",
                       mode === "claim"
                         ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
+                        : "bg-muted text-muted-foreground",
                     )}
                   >
                     <Gift className="h-5 w-5" />
@@ -193,7 +194,7 @@ export function Step3Configure({
                   "hover:border-primary/50 hover:shadow-sm",
                   chainId === celoSepolia.id
                     ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border"
+                    : "border-border",
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -219,7 +220,7 @@ export function Step3Configure({
                   "hover:border-primary/50 hover:shadow-sm",
                   chainId === baseSepolia.id
                     ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border"
+                    : "border-border",
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -233,7 +234,8 @@ export function Step3Configure({
               </button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Note: Verification always happens on Celo Sepolia, regardless of the target chain.
+              Note: Verification always happens on Celo Sepolia, regardless of
+              the target chain.
             </p>
           </div>
 
@@ -245,7 +247,8 @@ export function Step3Configure({
                   Airdrop Identifier <span className="text-destructive">*</span>
                 </Label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Unique name for your airdrop (lowercase, numbers, hyphens only)
+                  Unique name for your airdrop (lowercase, numbers, hyphens
+                  only)
                 </p>
               </div>
               <Input
@@ -258,12 +261,14 @@ export function Step3Configure({
               />
               {airdropId && !isValidAirdropId(airdropId) && (
                 <p className="text-sm text-destructive">
-                  Must be 3-50 characters, lowercase letters, numbers, and hyphens only
+                  Must be 3-50 characters, lowercase letters, numbers, and
+                  hyphens only
                 </p>
               )}
               {airdropId && isValidAirdropId(airdropId) && (
                 <p className="text-sm text-green-600 dark:text-green-400">
-                  Claim URL will be: {window.location.origin}/claim/{chainId === baseSepolia.id ? "base" : "celo"}/{airdropId}
+                  Claim URL will be: {window.location.origin}/claim/
+                  {chainId === baseSepolia.id ? "base" : "celo"}/{airdropId}
                 </p>
               )}
             </div>
@@ -272,7 +277,10 @@ export function Step3Configure({
           {/* Token Address */}
           <div className="space-y-3">
             <div>
-              <Label htmlFor="token-address" className="text-base font-semibold">
+              <Label
+                htmlFor="token-address"
+                className="text-base font-semibold"
+              >
                 Token Contract Address
               </Label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -294,15 +302,15 @@ export function Step3Configure({
             <AlertDescription className="text-sm">
               {mode === "send" ? (
                 <span>
-                  With <strong>Send</strong> mode, all transfers happen in a single
-                  transaction. You'll pay the gas fees, and recipients receive
-                  tokens instantly without any action needed.
+                  With <strong>Send</strong> mode, all transfers happen in a
+                  single transaction. You'll pay the gas fees, and recipients
+                  receive tokens instantly without any action needed.
                 </span>
               ) : (
                 <span>
-                  With <strong>Claim</strong> mode, you create an airdrop contract.
-                  Each recipient must claim their tokens individually and pay their
-                  own gas fees.
+                  With <strong>Claim</strong> mode, you create an airdrop
+                  contract. Each recipient must claim their tokens individually
+                  and pay their own gas fees.
                 </span>
               )}
             </AlertDescription>

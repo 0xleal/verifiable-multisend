@@ -68,7 +68,7 @@ export function DistributionExecutor({
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [verificationSuccess, setVerificationSuccess] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(
-    null
+    null,
   );
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successTxHash, setSuccessTxHash] = useState<string | null>(null);
@@ -260,11 +260,11 @@ export function DistributionExecutor({
   const progress =
     recipients.length > 0 ? (transactions.length / recipients.length) * 100 : 0;
   const successCount = transactions.filter(
-    (t) => t.status === "success"
+    (t) => t.status === "success",
   ).length;
   const errorCount = transactions.filter((t) => t.status === "error").length;
   const pendingCount = transactions.filter(
-    (t) => t.status === "pending"
+    (t) => t.status === "pending",
   ).length;
 
   return (
@@ -509,10 +509,10 @@ export function DistributionExecutor({
                           onError={(error) => {
                             console.error(
                               "Error: Failed to verify identity",
-                              error
+                              error,
                             );
                             setVerificationError(
-                              "Verification failed. Please try again."
+                              "Verification failed. Please try again.",
                             );
                           }}
                         />

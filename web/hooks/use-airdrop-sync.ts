@@ -73,7 +73,7 @@ export function useAirdropSync() {
         if (sync.retries > 0) {
           const delay = getRetryDelay(sync.retries);
           console.log(
-            `Retrying airdrop ${sync.airdropId} after ${delay}ms (attempt ${sync.retries + 1})`
+            `Retrying airdrop ${sync.airdropId} after ${delay}ms (attempt ${sync.retries + 1})`,
           );
           await new Promise((resolve) => setTimeout(resolve, delay));
         }
@@ -92,7 +92,7 @@ export function useAirdropSync() {
 
         if (!canRetry) {
           console.error(
-            `Max retries exceeded for airdrop ${sync.airdropId}. Manual recovery required.`
+            `Max retries exceeded for airdrop ${sync.airdropId}. Manual recovery required.`,
           );
         }
       }

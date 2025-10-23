@@ -17,7 +17,7 @@ if (!supabaseUrl) {
 
 if (!supabaseServiceKey) {
   throw new Error(
-    "Missing SUPABASE_SERVICE_ROLE_KEY environment variable. This should be the service_role key, NOT the anon key!"
+    "Missing SUPABASE_SERVICE_ROLE_KEY environment variable. This should be the service_role key, NOT the anon key!",
   );
 }
 

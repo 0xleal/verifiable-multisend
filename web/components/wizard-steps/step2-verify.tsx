@@ -31,7 +31,9 @@ interface Step2VerifyProps {
 export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
   const { address } = useAccount();
   const [verificationSuccess, setVerificationSuccess] = useState(false);
-  const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [verificationError, setVerificationError] = useState<string | null>(
+    null,
+  );
   const [selfApp, setSelfApp] = useState<any | null>(null);
 
   // Always use Celo for verification (even if user wants to distribute on Base)
@@ -80,7 +82,12 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
       console.error("Failed to init Self app", e);
       setVerificationError("Failed to initialize verification");
     }
-  }, [scopeSeed, address, contractAddress, verificationConfig.selfEndpointType]);
+  }, [
+    scopeSeed,
+    address,
+    contractAddress,
+    verificationConfig.selfEndpointType,
+  ]);
 
   const handleNext = () => {
     if (isVerified) {
@@ -151,7 +158,9 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
             /* Need to Verify */
             <div className="space-y-6">
               <div className="bg-muted/50 rounded-lg p-4 md:p-6 space-y-3">
-                <h4 className="font-semibold text-sm md:text-base">Why verification?</h4>
+                <h4 className="font-semibold text-sm md:text-base">
+                  Why verification?
+                </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <ShieldCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
@@ -172,8 +181,9 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
                 <div className="space-y-4">
                   <div className="text-sm text-muted-foreground space-y-2">
                     <p>
-                      Scan this QR code with your <strong>Self app</strong> to complete
-                      verification. This is required once every 30 days.
+                      Scan this QR code with your <strong>Self app</strong> to
+                      complete verification. This is required once every 30
+                      days.
                     </p>
                     <p>
                       Don't have the app?{" "}
@@ -201,7 +211,7 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
                       onError={(error) => {
                         console.error("Verification error:", error);
                         setVerificationError(
-                          "Verification failed. Please try again."
+                          "Verification failed. Please try again.",
                         );
                       }}
                     />

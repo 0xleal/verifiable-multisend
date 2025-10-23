@@ -74,7 +74,9 @@ export function DistributionJourneySummary({
           <CheckCircle2 className="h-5 w-5 text-primary" />
           Your Distribution Journey
         </CardTitle>
-        <CardDescription>Review your configuration before executing</CardDescription>
+        <CardDescription>
+          Review your configuration before executing
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Step 1: Recipients */}
@@ -142,7 +144,9 @@ export function DistributionJourneySummary({
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
               <Settings className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-sm font-medium">Distribution Configured</span>
+              <span className="text-sm font-medium">
+                Distribution Configured
+              </span>
             </div>
             <div className="text-xs text-muted-foreground space-y-0.5">
               <div className="flex items-center justify-between">
@@ -159,7 +163,10 @@ export function DistributionJourneySummary({
               </div>
               <div className="flex items-center justify-between">
                 <span>Chain:</span>
-                <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                <Badge
+                  variant="secondary"
+                  className="text-xs flex items-center gap-1"
+                >
                   <Network className="h-3 w-3" />
                   {targetChainName}
                 </Badge>
@@ -170,11 +177,14 @@ export function DistributionJourneySummary({
 
         {/* Verification Warning */}
         {verificationInfo.isVerified && verificationInfo.daysRemaining < 7 && (
-          <Alert variant="destructive" className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30">
+          <Alert
+            variant="destructive"
+            className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30"
+          >
             <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             <AlertDescription className="text-xs text-amber-600 dark:text-amber-400">
-              Your verification expires in {verificationInfo.daysRemaining} days.
-              Consider renewing soon.
+              Your verification expires in {verificationInfo.daysRemaining}{" "}
+              days. Consider renewing soon.
             </AlertDescription>
           </Alert>
         )}
@@ -192,9 +202,10 @@ export function DistributionJourneySummary({
             </span>{" "}
             to{" "}
             <span className="font-medium text-foreground">
-              {recipients.length} {recipients.length === 1 ? "recipient" : "recipients"}
-            </span>
-            {" "}on{" "}
+              {recipients.length}{" "}
+              {recipients.length === 1 ? "recipient" : "recipients"}
+            </span>{" "}
+            on{" "}
             <span className="font-medium text-foreground">
               {targetChainName}
             </span>

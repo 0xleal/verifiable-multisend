@@ -37,7 +37,7 @@ export function DistributionPreview({ recipients }: DistributionPreviewProps) {
 
   const totalAmount = displayRecipients.reduce(
     (sum, r) => sum + Number(r.amount),
-    0
+    0,
   );
 
   return (

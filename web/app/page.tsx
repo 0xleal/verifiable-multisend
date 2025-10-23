@@ -12,17 +12,10 @@ import {
   ArrowRight,
   Globe,
   Shield,
-  Zap,
   Lock,
   Users,
-  DollarSign,
   CheckCircle2,
   Coins,
-  TrendingDown,
-  Clock,
-  Building2,
-  Send,
-  Banknote,
 } from "lucide-react";
 
 export default function Home() {
@@ -36,9 +29,9 @@ export default function Home() {
               <Coins className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold">HumanPay</h1>
+              <h1 className="text-xl font-bold">Verifiable Multisend</h1>
               <p className="text-xs text-muted-foreground">
-                Compliant cross-border payments
+                Compliant token distribution
               </p>
             </div>
           </div>
@@ -54,15 +47,16 @@ export default function Home() {
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <Badge variant="secondary" className="text-sm px-4 py-1">
-            Open Source Infrastructure
+            Open Source • Powered by Self Protocol
           </Badge>
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-balance">
-            Cross-border payments that don't cost 7% and take 7 days
+            Compliant token distribution with zero-knowledge identity
+            verification
           </h2>
           <p className="text-xl text-muted-foreground text-pretty max-w-2xl mx-auto">
-            Send crypto payments globally while maintaining regulatory
-            compliance—without centralized intermediaries, traditional banking
-            rails, or sacrificing privacy.
+            Distribute tokens to verified humans while enforcing OFAC screening,
+            country restrictions, and age requirements—without storing any
+            personal data onchain.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Link href="/distribute">
@@ -88,144 +82,53 @@ export default function Home() {
           {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-12">
             <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">70%+</div>
+              <div className="text-3xl font-bold text-primary">
+                Zero-Knowledge
+              </div>
               <div className="text-sm text-muted-foreground">
-                Cheaper than wire transfers
+                No personal data onchain
               </div>
             </div>
             <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">Instant</div>
+              <div className="text-3xl font-bold text-primary">Self ID</div>
               <div className="text-sm text-muted-foreground">
-                Settlement in seconds
+                Passport-based verification
               </div>
             </div>
             <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">$700B+</div>
+              <div className="text-3xl font-bold text-primary">Onchain</div>
               <div className="text-sm text-muted-foreground">
-                Annual remittances market
+                Verifiable compliance proofs
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* The Problem */}
+      {/* What is Self */}
       <section className="bg-muted/30 py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center space-y-4">
               <h3 className="text-3xl md:text-4xl font-bold">
-                The Cross-Border Payment Problem
+                Powered by Self Protocol
               </h3>
               <p className="text-lg text-muted-foreground text-pretty max-w-2xl mx-auto">
-                Traditional finance and existing crypto solutions both fall
-                short
+                The leading digital identity infrastructure for Web3. Self
+                leverages zero-knowledge cryptography to disclose verifiable
+                credentials without revealing sensitive information.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-destructive" />
-                    Traditional Banking
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-start gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>3-7 day settlement times</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>3-7% fees ($30-50 per wire)</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Users className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>Excludes 1.4B unbanked people</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Lock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>Manual compliance that doesn't scale</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Coins className="h-5 w-5 text-destructive" />
-                    Existing Crypto
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-start gap-2 text-sm">
-                    <Lock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>Centralized exchanges custody your funds</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Shield className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>No compliance layer = regulatory risk</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Users className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>Vulnerable to bot exploitation</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Globe className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>Can't enforce jurisdiction controls</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Solution */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto space-y-12">
-            <div className="text-center space-y-4">
-              <h3 className="text-3xl md:text-4xl font-bold">
-                The HumanPay Solution
-              </h3>
-              <p className="text-lg text-muted-foreground text-pretty max-w-2xl mx-auto">
-                Zero-knowledge identity verification + gas-optimized batch
-                transfers = compliant, instant, affordable global payments
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <Zap className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle>Instant Settlement</CardTitle>
-                  <CardDescription>
-                    Payments arrive in seconds, not days. No waiting for bank
-                    business hours or SWIFT networks.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <TrendingDown className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle>70%+ Cheaper</CardTitle>
-                  <CardDescription>
-                    Single batch transaction replaces expensive wire transfers.
-                    Pay $25 instead of $1,500 for 50 recipients.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
+            <div className="grid md:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
                   <Shield className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle>Regulatory Compliant</CardTitle>
+                  <CardTitle>Zero-Knowledge Proofs</CardTitle>
                   <CardDescription>
-                    OFAC screening, jurisdiction controls, and age verification
-                    via zero-knowledge proofs.
+                    Verify identity attributes from passports and ID cards
+                    without exposing personal data. No third parties. No data
+                    leaks.
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -233,21 +136,53 @@ export default function Home() {
               <Card>
                 <CardHeader>
                   <Lock className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle>Privacy-Preserving</CardTitle>
+                  <CardTitle>Privacy-First</CardTitle>
                   <CardDescription>
-                    No personal data on-chain. Zero-knowledge proofs mean your
-                    identity stays private.
+                    Users scan their passport with the Self app. ZK proofs
+                    confirm compliance without revealing nationality, age, or
+                    identity.
                   </CardDescription>
                 </CardHeader>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <Banknote className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle>Non-Custodial</CardTitle>
+                  <CheckCircle2 className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle>Verifiable Onchain</CardTitle>
                   <CardDescription>
-                    You control your funds at all times. No intermediaries, no
-                    custody risk.
+                    All compliance checks happen onchain with cryptographic
+                    proofs. Auditable, transparent, and tamper-proof.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Compliance Capabilities */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto space-y-12">
+            <div className="text-center space-y-4">
+              <h3 className="text-3xl md:text-4xl font-bold">
+                Onchain Compliance Checks
+              </h3>
+              <p className="text-lg text-muted-foreground text-pretty max-w-2xl mx-auto">
+                Enforce regulatory requirements directly on the blockchain using
+                verified passport and ID card data
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <Shield className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle>OFAC Screening</CardTitle>
+                  <CardDescription>
+                    Automatically screen recipients against OFAC sanctions
+                    lists. Verify users are not on watchlists—without revealing
+                    their identity.
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -255,10 +190,22 @@ export default function Home() {
               <Card>
                 <CardHeader>
                   <Globe className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle>Globally Accessible</CardTitle>
+                  <CardTitle>Country Restrictions</CardTitle>
                   <CardDescription>
-                    Anyone with a passport/ID and internet connection can
-                    participate. No bank account required.
+                    Enforce jurisdiction controls based on passport nationality.
+                    Exclude specific countries from token distribution with
+                    cryptographic proof.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <Users className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle>Age Verification</CardTitle>
+                  <CardDescription>
+                    Require minimum age for token claims. Verify birthdate from
+                    government-issued IDs without exposing personal information.
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -274,7 +221,7 @@ export default function Home() {
             <div className="text-center space-y-4">
               <h3 className="text-3xl md:text-4xl font-bold">Use Cases</h3>
               <p className="text-lg text-muted-foreground text-pretty">
-                Real problems, real solutions, real savings
+                Built for compliant token distribution
               </p>
             </div>
 
@@ -282,71 +229,25 @@ export default function Home() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Globe className="h-5 w-5" />
-                    Global Payroll
+                    <Coins className="h-5 w-5" />
+                    Token Airdrops
                   </CardTitle>
                   <CardDescription>
-                    Pay 50 contractors across 25 countries instantly
+                    Distribute tokens to real humans, not bots
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Traditional wire transfers
-                      </span>
-                      <span className="font-semibold">$1,500+ fees</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        With HumanPay
-                      </span>
-                      <span className="font-semibold text-primary">
-                        {">"}$1 gas
-                      </span>
-                    </div>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Proof of humanity via passport verification</span>
                   </div>
-                  <div className="pt-2 border-t">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                      <CheckCircle2 className="h-4 w-4" />
-                      Save $1,500+ per month
-                    </div>
+                  <div className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Prevent sybil attacks and bot farming</span>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Send className="h-5 w-5" />
-                    Remittances
-                  </CardTitle>
-                  <CardDescription>
-                    Send $500/month home without 7% Western Union fees
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Traditional remittance
-                      </span>
-                      <span className="font-semibold">$420/year fees</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        With HumanPay
-                      </span>
-                      <span className="font-semibold text-primary">
-                        {">"}$1/year
-                      </span>
-                    </div>
-                  </div>
-                  <div className="pt-2 border-t">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                      <CheckCircle2 className="h-4 w-4" />
-                      99% fee reduction
-                    </div>
+                  <div className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Batch distribution in single transaction</span>
                   </div>
                 </CardContent>
               </Card>
@@ -355,24 +256,24 @@ export default function Home() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Shield className="h-5 w-5" />
-                    Compliant Token Launch
+                    Regulatory-Compliant Launches
                   </CardTitle>
                   <CardDescription>
-                    Distribute tokens while excluding sanctioned countries
+                    Launch tokens with jurisdiction controls
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>OFAC + jurisdiction checks via ZK proofs</span>
+                    <span>Exclude sanctioned countries (OFAC screening)</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Zero personal data stored</span>
+                    <span>Enforce age restrictions (18+, 21+, etc.)</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>On-chain compliance proof for regulators</span>
+                    <span>On-chain compliance proofs for regulators</span>
                   </div>
                 </CardContent>
               </Card>
@@ -380,35 +281,51 @@ export default function Home() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5" />
-                    B2B Settlements
+                    <Users className="h-5 w-5" />
+                    Community Rewards
                   </CardTitle>
                   <CardDescription>
-                    Pay 100 vendors across 3 continents monthly
+                    Reward contributors with verified identities
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        SWIFT payments
-                      </span>
-                      <span className="font-semibold">$4,000/month</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        With HumanPay
-                      </span>
-                      <span className="font-semibold text-primary">
-                        {">"}$1/month
-                      </span>
-                    </div>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>One reward per verified person</span>
                   </div>
-                  <div className="pt-2 border-t">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                      <CheckCircle2 className="h-4 w-4" />
-                      Save $3,950 per month
-                    </div>
+                  <div className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Privacy-preserving identity verification</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Flexible distribution to multiple recipients</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    Geographic Token Distribution
+                  </CardTitle>
+                  <CardDescription>
+                    Target or exclude specific regions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Country-based inclusion or exclusion rules</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Cryptographic proof of nationality</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span>No personal data exposed or stored</span>
                   </div>
                 </CardContent>
               </Card>
@@ -424,7 +341,7 @@ export default function Home() {
             <div className="text-center space-y-4">
               <h3 className="text-3xl md:text-4xl font-bold">How It Works</h3>
               <p className="text-lg text-muted-foreground text-pretty">
-                Simple, secure, compliant
+                Three steps to compliant token distribution
               </p>
             </div>
 
@@ -433,11 +350,13 @@ export default function Home() {
                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary">
                   1
                 </div>
-                <h4 className="text-xl font-semibold">Verify Your Identity</h4>
+                <h4 className="text-xl font-semibold">
+                  Configure Compliance Rules
+                </h4>
                 <p className="text-muted-foreground">
-                  Scan your passport with Self.xyz app. Zero-knowledge proof
-                  confirms you pass OFAC/compliance checks without revealing
-                  personal data.
+                  Set OFAC screening, country restrictions, and age
+                  requirements. Define which verified users can claim your
+                  tokens.
                 </p>
               </div>
 
@@ -447,8 +366,8 @@ export default function Home() {
                 </div>
                 <h4 className="text-xl font-semibold">Upload Recipients</h4>
                 <p className="text-muted-foreground">
-                  Add wallet addresses and amounts via CSV or paste directly.
-                  Pay anyone, anywhere—no bank accounts required.
+                  Add recipient addresses and token amounts. Batch distribute to
+                  hundreds of addresses in a single transaction.
                 </p>
               </div>
 
@@ -456,10 +375,12 @@ export default function Home() {
                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary">
                   3
                 </div>
-                <h4 className="text-xl font-semibold">Execute & Done</h4>
+                <h4 className="text-xl font-semibold">
+                  Recipients Verify & Claim
+                </h4>
                 <p className="text-muted-foreground">
-                  One transaction sends to all recipients simultaneously.
-                  Everyone receives funds in seconds at 70%+ cost savings.
+                  Recipients scan their passport with Self app to generate ZK
+                  proof, then claim tokens if they pass compliance checks.
                 </p>
               </div>
             </div>
@@ -472,11 +393,12 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center space-y-6">
             <h3 className="text-3xl md:text-4xl font-bold">
-              Ready to transform cross-border payments?
+              Ready to distribute tokens compliantly?
             </h3>
             <p className="text-lg opacity-90">
-              Join the future of compliant, instant, affordable global payments.
-              Open source, non-custodial, privacy-preserving.
+              Open source infrastructure for token distribution with built-in
+              compliance. Powered by Self's zero-knowledge identity
+              verification.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Link href="/distribute">
@@ -502,10 +424,10 @@ export default function Home() {
                 <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                   <Coins className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="font-bold">HumanPay</span>
+                <span className="font-bold">Verifiable Multisend</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Open-source infrastructure for compliant cross-border payments.
+                Open-source infrastructure for compliant token distribution.
               </p>
             </div>
 

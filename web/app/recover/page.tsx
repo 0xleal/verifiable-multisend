@@ -62,7 +62,6 @@ export default function RecoverPage() {
     }
   };
 
-
   return (
     <div className="container mx-auto p-8 max-w-4xl">
       <h1 className="text-3xl font-bold mb-6">Airdrop Recovery</h1>
@@ -102,7 +101,6 @@ export default function RecoverPage() {
           </div>
         )}
       </Card>
-
 
       {/* Status Messages */}
       {error && (

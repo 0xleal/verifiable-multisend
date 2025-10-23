@@ -8,7 +8,10 @@ import { Button } from "@/components/ui/button";
 import { StepIndicator } from "@/components/step-indicator";
 import { Step1Upload } from "@/components/wizard-steps/step1-upload";
 import { Step2Verify } from "@/components/wizard-steps/step2-verify";
-import { Step3Configure, type DistributionConfig } from "@/components/wizard-steps/step3-configure";
+import {
+  Step3Configure,
+  type DistributionConfig,
+} from "@/components/wizard-steps/step3-configure";
 import { Step4Review } from "@/components/wizard-steps/step4-review";
 import type { RecipientData } from "@/components/csv-upload";
 
@@ -114,10 +117,7 @@ export default function DistributePage() {
             }
           >
             {currentStep === 1 && (
-              <Step1Upload
-                onNext={handleStep1Next}
-                initialData={recipients}
-              />
+              <Step1Upload onNext={handleStep1Next} initialData={recipients} />
             )}
             {currentStep === 2 && (
               <Step2Verify

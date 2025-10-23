@@ -22,11 +22,15 @@ interface Step1UploadProps {
 
 export function Step1Upload({ onNext, initialData }: Step1UploadProps) {
   const [csvText, setCsvText] = useState(
-    initialData ? initialData.map((r) => `${r.address},${r.amount}`).join("\n") : ""
+    initialData
+      ? initialData.map((r) => `${r.address},${r.amount}`).join("\n")
+      : "",
   );
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [parsedData, setParsedData] = useState<RecipientData[]>(initialData || []);
+  const [parsedData, setParsedData] = useState<RecipientData[]>(
+    initialData || [],
+  );
 
   const parseCSV = useCallback((text: string): RecipientData[] => {
     const lines = text.trim().split("\n");
@@ -43,14 +47,14 @@ export function Step1Upload({ onNext, initialData }: Step1UploadProps) {
 
       if (!address || !amount) {
         throw new Error(
-          `Invalid format on line ${i + 1}. Expected: address,amount`
+          `Invalid format on line ${i + 1}. Expected: address,amount`,
         );
       }
 
       // Basic Ethereum address validation
       if (!address.match(/^0x[a-fA-F0-9]{40}$/)) {
         throw new Error(
-          `Invalid Ethereum address on line ${i + 1}: ${address}`
+          `Invalid Ethereum address on line ${i + 1}: ${address}`,
         );
       }
 
@@ -86,7 +90,7 @@ export function Step1Upload({ onNext, initialData }: Step1UploadProps) {
       };
       reader.readAsText(file);
     },
-    [parseCSV]
+    [parseCSV],
   );
 
   const handleDrop = useCallback(
@@ -101,7 +105,7 @@ export function Step1Upload({ onNext, initialData }: Step1UploadProps) {
         setError("Please upload a CSV file");
       }
     },
-    [handleFileUpload]
+    [handleFileUpload],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -130,7 +134,7 @@ export function Step1Upload({ onNext, initialData }: Step1UploadProps) {
         setError(null);
       }
     },
-    [parseCSV]
+    [parseCSV],
   );
 
   const handleNext = () => {
@@ -172,9 +176,11 @@ export function Step1Upload({ onNext, initialData }: Step1UploadProps) {
                 : "border-border hover:border-primary/50"
             }`}
           >
-            <Upload className={`h-10 w-10 md:h-12 md:w-12 mx-auto mb-3 md:mb-4 transition-colors ${
-              isDragging ? "text-primary" : "text-muted-foreground"
-            }`} />
+            <Upload
+              className={`h-10 w-10 md:h-12 md:w-12 mx-auto mb-3 md:mb-4 transition-colors ${
+                isDragging ? "text-primary" : "text-muted-foreground"
+              }`}
+            />
             <p className="text-sm md:text-base text-muted-foreground mb-3">
               Drag and drop your CSV file here, or
             </p>
@@ -237,8 +243,9 @@ export function Step1Upload({ onNext, initialData }: Step1UploadProps) {
             <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
               <AlertCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
               <AlertDescription className="text-green-600 dark:text-green-400 text-sm">
-                Successfully parsed <strong>{parsedData.length}</strong> recipients
-                with a total of <strong>{totalAmount.toLocaleString()}</strong> tokens
+                Successfully parsed <strong>{parsedData.length}</strong>{" "}
+                recipients with a total of{" "}
+                <strong>{totalAmount.toLocaleString()}</strong> tokens
               </AlertDescription>
             </Alert>
           )}

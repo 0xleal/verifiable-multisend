@@ -15,7 +15,11 @@ interface StepIndicatorProps {
   completedSteps: number[];
 }
 
-export function StepIndicator({ steps, currentStep, completedSteps }: StepIndicatorProps) {
+export function StepIndicator({
+  steps,
+  currentStep,
+  completedSteps,
+}: StepIndicatorProps) {
   return (
     <div className="w-full">
       {/* Desktop: Horizontal stepper */}
@@ -33,9 +37,14 @@ export function StepIndicator({ steps, currentStep, completedSteps }: StepIndica
                   <div
                     className={cn(
                       "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300",
-                      isCompleted && "bg-primary text-primary-foreground animate-fade-in",
-                      isCurrent && !isCompleted && "bg-primary/20 text-primary border-2 border-primary scale-110",
-                      !isCurrent && !isCompleted && "bg-muted text-muted-foreground"
+                      isCompleted &&
+                        "bg-primary text-primary-foreground animate-fade-in",
+                      isCurrent &&
+                        !isCompleted &&
+                        "bg-primary/20 text-primary border-2 border-primary scale-110",
+                      !isCurrent &&
+                        !isCompleted &&
+                        "bg-muted text-muted-foreground",
                     )}
                   >
                     {isCompleted ? (
@@ -51,7 +60,7 @@ export function StepIndicator({ steps, currentStep, completedSteps }: StepIndica
                       className={cn(
                         "text-sm font-medium",
                         isCurrent && "text-foreground",
-                        !isCurrent && "text-muted-foreground"
+                        !isCurrent && "text-muted-foreground",
                       )}
                     >
                       {step.title}
@@ -67,7 +76,7 @@ export function StepIndicator({ steps, currentStep, completedSteps }: StepIndica
                   <div
                     className={cn(
                       "flex-1 h-0.5 mx-4 transition-all duration-500",
-                      isCompleted ? "bg-primary" : "bg-muted"
+                      isCompleted ? "bg-primary" : "bg-muted",
                     )}
                   />
                 )}
@@ -91,9 +100,14 @@ export function StepIndicator({ steps, currentStep, completedSteps }: StepIndica
                   <div
                     className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs transition-all duration-300",
-                      isCompleted && "bg-primary text-primary-foreground animate-fade-in",
-                      isCurrent && !isCompleted && "bg-primary/20 text-primary border-2 border-primary scale-110",
-                      !isCurrent && !isCompleted && "bg-muted text-muted-foreground"
+                      isCompleted &&
+                        "bg-primary text-primary-foreground animate-fade-in",
+                      isCurrent &&
+                        !isCompleted &&
+                        "bg-primary/20 text-primary border-2 border-primary scale-110",
+                      !isCurrent &&
+                        !isCompleted &&
+                        "bg-muted text-muted-foreground",
                     )}
                   >
                     {isCompleted ? (
@@ -112,7 +126,7 @@ export function StepIndicator({ steps, currentStep, completedSteps }: StepIndica
                   <div
                     className={cn(
                       "flex-1 h-0.5 transition-all duration-500",
-                      isCompleted ? "bg-primary" : "bg-muted"
+                      isCompleted ? "bg-primary" : "bg-muted",
                     )}
                   />
                 )}

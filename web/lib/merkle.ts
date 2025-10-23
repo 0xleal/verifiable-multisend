@@ -26,8 +26,8 @@ export function createMerkleTree(recipients: Recipient[]): MerkleData {
     return keccak256(
       solidityPacked(
         ["uint256", "address", "uint256"],
-        [index, recipient.address, recipient.amount]
-      )
+        [index, recipient.address, recipient.amount],
+      ),
     );
   });
 
@@ -56,10 +56,10 @@ export function verifyMerkleProof(
   root: string,
   index: number,
   address: string,
-  amount: string
+  amount: string,
 ): boolean {
   const leaf = keccak256(
-    solidityPacked(["uint256", "address", "uint256"], [index, address, amount])
+    solidityPacked(["uint256", "address", "uint256"], [index, address, amount]),
   );
   return MerkleTree.verify(proof, leaf, root, keccak256, { sortPairs: true });
 }

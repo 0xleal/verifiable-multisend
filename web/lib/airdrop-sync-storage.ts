@@ -89,10 +89,7 @@ export function removePendingSync(airdropId: string): void {
 /**
  * Update retry count and error message for a pending sync
  */
-export function updateRetryCount(
-  airdropId: string,
-  error?: string
-): boolean {
+export function updateRetryCount(airdropId: string, error?: string): boolean {
   if (typeof window === "undefined") return false; // SSR guard
 
   try {
@@ -107,7 +104,7 @@ export function updateRetryCount(
     // If max retries exceeded, keep it but mark as failed
     if (pending[index].retries >= MAX_RETRIES) {
       console.warn(
-        `Max retries (${MAX_RETRIES}) exceeded for airdrop ${airdropId}. Manual recovery required.`
+        `Max retries (${MAX_RETRIES}) exceeded for airdrop ${airdropId}. Manual recovery required.`,
       );
     }
 

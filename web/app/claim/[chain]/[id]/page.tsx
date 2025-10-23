@@ -2,7 +2,12 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { useAccount, useReadContract, useWriteContract, useSwitchChain } from "wagmi";
+import {
+  useAccount,
+  useReadContract,
+  useWriteContract,
+  useSwitchChain,
+} from "wagmi";
 import { formatEther, keccak256, toHex } from "viem";
 import { celoSepolia, baseSepolia } from "wagmi/chains";
 import { waitForTransactionReceipt } from "wagmi/actions";
@@ -52,9 +57,9 @@ interface AirdropData {
 }
 
 export default function ClaimPage({
-  params
+  params,
 }: {
-  params: Promise<{ chain: string; id: string }>
+  params: Promise<{ chain: string; id: string }>;
 }) {
   const resolvedParams = use(params);
   const { address, chain } = useAccount();
@@ -113,7 +118,9 @@ export default function ClaimPage({
 
         // Validate that the airdrop is on the correct chain
         if (data.chainId && data.chainId !== targetChain.id) {
-          setError(`This airdrop is on ${data.network}, not ${targetChain.name}`);
+          setError(
+            `This airdrop is on ${data.network}, not ${targetChain.name}`
+          );
           setLoading(false);
           return;
         }
@@ -131,16 +138,18 @@ export default function ClaimPage({
   }, [resolvedParams.id, targetChain.id, targetChain.name]);
 
   // Check if airdrop exists onchain
-  const { data: onchainAirdrop, isLoading: isLoadingOnchain } = useReadContract({
-    address: AIRDROP_CONTRACT_ADDRESS,
-    abi: SelfVerifiedAirdropAbi,
-    functionName: "airdrops",
-    args: airdropData ? [keccak256(toHex(airdropData.id))] : undefined,
-    chainId: targetChain.id,
-    query: {
-      enabled: !!airdropData,
-    },
-  });
+  const { data: onchainAirdrop, isLoading: isLoadingOnchain } = useReadContract(
+    {
+      address: AIRDROP_CONTRACT_ADDRESS,
+      abi: SelfVerifiedAirdropAbi,
+      functionName: "airdrops",
+      args: airdropData ? [keccak256(toHex(airdropData.id))] : undefined,
+      chainId: targetChain.id,
+      query: {
+        enabled: !!airdropData,
+      },
+    }
+  );
 
   // Check if user is verified
   const { data: isVerified, refetch: refetchVerification } = useReadContract({
@@ -159,7 +168,10 @@ export default function ClaimPage({
     address: AIRDROP_CONTRACT_ADDRESS,
     abi: SelfVerifiedAirdropAbi,
     functionName: "hasClaimed",
-    args: airdropData && address ? [keccak256(toHex(airdropData.id)), address] : undefined,
+    args:
+      airdropData && address
+        ? [keccak256(toHex(airdropData.id)), address]
+        : undefined,
     chainId: targetChain.id,
     query: {
       enabled: !!airdropData && !!address,
@@ -218,7 +230,9 @@ export default function ClaimPage({
   const handleVerify = () => {
     // TODO: Implement Self verification flow
     // For now, show message to user
-    alert("Self verification integration coming soon. For testing, use the trigger function directly.");
+    alert(
+      "Self verification integration coming soon. For testing, use the trigger function directly."
+    );
   };
 
   // Loading state
@@ -258,12 +272,13 @@ export default function ClaimPage({
                 </div>
               </div>
               <CardTitle>Error</CardTitle>
-              <CardDescription>
-                {error || "Airdrop not found"}
-              </CardDescription>
+              <CardDescription>{error || "Airdrop not found"}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button onClick={() => (window.location.href = "/")} className="w-full">
+              <Button
+                onClick={() => (window.location.href = "/")}
+                className="w-full"
+              >
                 Go to Homepage
               </Button>
             </CardContent>
@@ -274,7 +289,8 @@ export default function ClaimPage({
   }
 
   // Check if airdrop exists onchain
-  const airdropExistsOnchain = onchainAirdrop && onchainAirdrop[0] !== "0x" + "0".repeat(64);
+  const airdropExistsOnchain =
+    onchainAirdrop && onchainAirdrop[0] !== "0x" + "0".repeat(64);
 
   // Success state
   if (success && txHash) {
@@ -316,7 +332,10 @@ export default function ClaimPage({
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Amount</span>
                   <span className="font-semibold">
-                    {userAllocation ? formatEther(BigInt(userAllocation.amount)) : "0"} {targetChain.nativeCurrency.symbol}
+                    {userAllocation
+                      ? formatEther(BigInt(userAllocation.amount))
+                      : "0"}{" "}
+                    {targetChain.nativeCurrency.symbol}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -340,7 +359,10 @@ export default function ClaimPage({
               </div>
               <Button
                 onClick={() =>
-                  window.open(`${targetChain?.blockExplorers?.default.url}/tx/${txHash}`, "_blank")
+                  window.open(
+                    `${targetChain?.blockExplorers?.default.url}/tx/${txHash}`,
+                    "_blank"
+                  )
                 }
                 className="w-full"
               >
@@ -400,12 +422,15 @@ export default function ClaimPage({
                 <div>
                   <p className="text-sm text-muted-foreground">Total Amount</p>
                   <p className="font-semibold">
-                    {formatEther(BigInt(airdropData.totalAmount))} {targetChain.nativeCurrency.symbol}
+                    {formatEther(BigInt(airdropData.totalAmount))}{" "}
+                    {targetChain.nativeCurrency.symbol}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Recipients</p>
-                  <p className="font-semibold">{airdropData.recipients.length}</p>
+                  <p className="font-semibold">
+                    {airdropData.recipients.length}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Network</p>
@@ -420,7 +445,8 @@ export default function ClaimPage({
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                This airdrop has not been deployed onchain yet or has been cancelled.
+                This airdrop has not been deployed onchain yet or has been
+                cancelled.
               </AlertDescription>
             </Alert>
           )}
@@ -438,7 +464,8 @@ export default function ClaimPage({
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    Click the "Connect Wallet" button in the top right to get started
+                    Click the "Connect Wallet" button in the top right to get
+                    started
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -458,7 +485,8 @@ export default function ClaimPage({
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    This airdrop requires Self verification to prevent bots and ensure fair distribution
+                    This airdrop requires Self verification to prevent bots and
+                    ensure fair distribution
                   </AlertDescription>
                 </Alert>
                 <Button onClick={handleVerify} className="w-full">
@@ -484,7 +512,8 @@ export default function ClaimPage({
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    Connected wallet: <code className="font-mono text-xs">{address}</code>
+                    Connected wallet:{" "}
+                    <code className="font-mono text-xs">{address}</code>
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -492,69 +521,79 @@ export default function ClaimPage({
           )}
 
           {/* User already claimed */}
-          {address && isVerified && userAllocation && hasClaimed && airdropExistsOnchain && (
-            <Card className="border-blue-200 dark:border-blue-800">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-blue-600" />
-                  Already Claimed
-                </CardTitle>
-                <CardDescription>
-                  You've already claimed your tokens from this airdrop
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          )}
+          {address &&
+            isVerified &&
+            userAllocation &&
+            hasClaimed &&
+            airdropExistsOnchain && (
+              <Card className="border-blue-200 dark:border-blue-800">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                    Already Claimed
+                  </CardTitle>
+                  <CardDescription>
+                    You've already claimed your tokens from this airdrop
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            )}
 
           {/* Ready to claim */}
-          {address && isVerified && userAllocation && !hasClaimed && airdropExistsOnchain && (
-            <Card className="border-green-200 dark:border-green-800">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gift className="h-5 w-5 text-green-600" />
-                  You're Eligible!
-                </CardTitle>
-                <CardDescription>
-                  Claim your tokens now
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-green-50 dark:bg-green-950 rounded-lg p-6 text-center">
-                  <p className="text-sm text-muted-foreground mb-2">You can claim</p>
-                  <p className="text-4xl font-bold text-green-600 dark:text-green-400">
-                    {formatEther(BigInt(userAllocation.amount))}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">{targetChain.nativeCurrency.symbol} tokens</p>
-                </div>
+          {address &&
+            isVerified &&
+            userAllocation &&
+            !hasClaimed &&
+            airdropExistsOnchain && (
+              <Card className="border-green-200 dark:border-green-800">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Gift className="h-5 w-5 text-green-600" />
+                    You're Eligible!
+                  </CardTitle>
+                  <CardDescription>Claim your tokens now</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-green-50 dark:bg-green-950 rounded-lg p-6 text-center">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      You can claim
+                    </p>
+                    <p className="text-4xl font-bold text-green-600 dark:text-green-400">
+                      {formatEther(BigInt(userAllocation.amount))}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {targetChain.nativeCurrency.symbol} tokens
+                    </p>
+                  </div>
 
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-
-                <Button
-                  onClick={handleClaim}
-                  disabled={claiming}
-                  size="lg"
-                  className="w-full"
-                >
-                  {claiming ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Claiming...
-                    </>
-                  ) : (
-                    <>
-                      <Gift className="h-4 w-4 mr-2" />
-                      Claim Tokens
-                    </>
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
                   )}
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+
+                  <Button
+                    onClick={handleClaim}
+                    disabled={claiming}
+                    size="lg"
+                    className="w-full"
+                  >
+                    {claiming ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Claiming...
+                      </>
+                    ) : (
+                      <>
+                        <Gift className="h-4 w-4 mr-2" />
+                        Claim Tokens
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
         </div>
       </main>
     </div>

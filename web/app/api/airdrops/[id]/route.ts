@@ -15,10 +15,7 @@ export async function GET(
     const airdrop = await AirdropStorage.get(id);
 
     if (!airdrop) {
-      return NextResponse.json(
-        { error: "Airdrop not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Airdrop not found" }, { status: 404 });
     }
 
     return NextResponse.json(airdrop, { status: 200 });

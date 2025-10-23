@@ -10,7 +10,8 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "HumanPay - Compliant Cross-Border Payments",
-  description: "Send crypto payments globally while maintaining regulatory compliance. Zero-knowledge verification, instant settlement, 70% cheaper than wire transfers.",
+  description:
+    "Send crypto payments globally while maintaining regulatory compliance. Zero-knowledge verification, instant settlement, 70% cheaper than wire transfers.",
   generator: "v0.app",
 };
 

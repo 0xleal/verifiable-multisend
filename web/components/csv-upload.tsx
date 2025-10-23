@@ -45,14 +45,14 @@ export function CSVUpload({ onDataParsed }: CSVUploadProps) {
 
       if (!address || !amount) {
         throw new Error(
-          `Invalid format on line ${i + 1}. Expected: address,amount`
+          `Invalid format on line ${i + 1}. Expected: address,amount`,
         );
       }
 
       // Basic Ethereum address validation
       if (!address.match(/^0x[a-fA-F0-9]{40}$/)) {
         throw new Error(
-          `Invalid Ethereum address on line ${i + 1}: ${address}`
+          `Invalid Ethereum address on line ${i + 1}: ${address}`,
         );
       }
 
@@ -83,7 +83,7 @@ export function CSVUpload({ onDataParsed }: CSVUploadProps) {
       };
       reader.readAsText(file);
     },
-    [parseCSV, onDataParsed]
+    [parseCSV, onDataParsed],
   );
 
   const handleDrop = useCallback(
@@ -98,7 +98,7 @@ export function CSVUpload({ onDataParsed }: CSVUploadProps) {
         setError("Please upload a CSV file");
       }
     },
-    [handleFileUpload]
+    [handleFileUpload],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -123,7 +123,7 @@ export function CSVUpload({ onDataParsed }: CSVUploadProps) {
         }
       }
     },
-    [parseCSV, onDataParsed]
+    [parseCSV, onDataParsed],
   );
 
   return (

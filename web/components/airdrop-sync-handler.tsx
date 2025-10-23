@@ -26,7 +26,7 @@ export function AirdropSyncHandler() {
     if (failedSyncs.length > 0) {
       console.warn(
         `${failedSyncs.length} airdrop(s) failed to sync after max retries. Manual recovery may be needed.`,
-        failedSyncs.map((s) => s.airdropId)
+        failedSyncs.map((s) => s.airdropId),
       );
     }
   }, [isPending, isSyncing, failedSyncs]);

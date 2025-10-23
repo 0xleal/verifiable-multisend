@@ -54,7 +54,11 @@ interface Step4ReviewProps {
   distributionConfig: DistributionConfig;
 }
 
-export function Step4Review({ onBack, recipients, distributionConfig }: Step4ReviewProps) {
+export function Step4Review({
+  onBack,
+  recipients,
+  distributionConfig,
+}: Step4ReviewProps) {
   const { address, chain } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
@@ -72,7 +76,8 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
     throw new Error(`Unsupported chain ID: ${distributionConfig.chainId}`);
   }
 
-  const distributionContractAddress = targetChainConfig.distributionContractAddress;
+  const distributionContractAddress =
+    targetChainConfig.distributionContractAddress;
   const distributionContractAbi = targetChainConfig.distributionContractAbi;
   const airdropContractAddress = targetChainConfig.airdropContractAddress;
   const targetChainId = targetChainConfig.chain.id;
@@ -128,9 +133,16 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
       const hash = await writeContractAsync({
         address: airdropContractAddress,
         abi: SelfVerifiedAirdropAbi,
-        functionName: distributionConfig.tokenAddress ? "createAirdropERC20" : "createAirdropETH",
+        functionName: distributionConfig.tokenAddress
+          ? "createAirdropERC20"
+          : "createAirdropETH",
         args: distributionConfig.tokenAddress
-          ? [airdropIdHash, merkleData.root, distributionConfig.tokenAddress, value]
+          ? [
+              airdropIdHash,
+              merkleData.root,
+              distributionConfig.tokenAddress,
+              value,
+            ]
           : [airdropIdHash, merkleData.root],
         chainId: targetChainId,
         value: distributionConfig.tokenAddress ? undefined : value,
@@ -154,12 +166,16 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
           creator: address,
           createdAt: Date.now(),
           txHash: hash,
-          network: targetChainConfig.chain.name.toLowerCase().replace(/ /g, "-"),
+          network: targetChainConfig.chain.name
+            .toLowerCase()
+            .replace(/ /g, "-"),
           chainId: targetChainId,
         };
 
         // CRITICAL: Save to localStorage FIRST (instant backup)
-        const { savePendingSync, removePendingSync } = await import("@/lib/airdrop-sync-storage");
+        const { savePendingSync, removePendingSync } = await import(
+          "@/lib/airdrop-sync-storage"
+        );
         savePendingSync(distributionConfig.airdropId, airdropData);
 
         // Try to sync to backend immediately
@@ -177,14 +193,14 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
           } else {
             console.warn(
               "Failed to sync airdrop data to backend. Will retry automatically.",
-              await response.text()
+              await response.text(),
             );
             // Data is safe in localStorage and will be retried by auto-sync
           }
         } catch (e) {
           console.warn(
             "Error syncing airdrop data to backend. Will retry automatically.",
-            e
+            e,
           );
           // Data is safe in localStorage and will be retried by auto-sync
         }
@@ -316,7 +332,9 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
 
               <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Total Recipients</span>
+                  <span className="text-muted-foreground">
+                    Total Recipients
+                  </span>
                   <span className="font-semibold">{recipients.length}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -327,10 +345,14 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Airdrop ID</span>
-                  <span className="font-mono text-xs">{distributionConfig.airdropId}</span>
+                  <span className="font-mono text-xs">
+                    {distributionConfig.airdropId}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Transaction Hash</span>
+                  <span className="text-muted-foreground">
+                    Transaction Hash
+                  </span>
                   <a
                     href={`${chain?.blockExplorers?.default.url}/tx/${txHash}`}
                     target="_blank"
@@ -346,7 +368,8 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
               <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
                 <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                 <AlertDescription className="text-green-600 dark:text-green-400 text-sm">
-                  Airdrop contract deployed! Recipients can now claim their tokens.
+                  Airdrop contract deployed! Recipients can now claim their
+                  tokens.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -433,7 +456,7 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
               onClick={() =>
                 window.open(
                   `${chain?.blockExplorers?.default.url}/tx/${txHash}`,
-                  "_blank"
+                  "_blank",
                 )
               }
               className="w-full"
@@ -478,121 +501,135 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
 
           {/* Summary Cards */}
           <div className="grid md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              Recipients
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{recipients.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {recipients.length === 1 ? "wallet" : "wallets"}
-            </p>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  Recipients
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{recipients.length}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {recipients.length === 1 ? "wallet" : "wallets"}
+                </p>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Coins className="h-4 w-4 text-muted-foreground" />
-              Total Amount
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {totalAmount.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">CELO tokens</p>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Coins className="h-4 w-4 text-muted-foreground" />
+                  Total Amount
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {totalAmount.toLocaleString()}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  CELO tokens
+                </p>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Settings className="h-4 w-4 text-muted-foreground" />
-              Distribution Mode
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold capitalize">{distributionConfig.mode}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {distributionConfig.mode === "send" ? "Batch transfer" : "Individual claims"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recipients Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <FileText className="h-5 w-5" />
-            Recipients List
-          </CardTitle>
-          <CardDescription>
-            Verify all addresses and amounts before proceeding
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="border rounded-lg max-h-[400px] overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">#</TableHead>
-                  <TableHead>Wallet Address</TableHead>
-                  <TableHead className="text-right">Amount (CELO)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recipients.map((recipient, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{index + 1}</TableCell>
-                    <TableCell className="font-mono text-xs md:text-sm">
-                      <span className="hidden md:inline">{recipient.address}</span>
-                      <span className="md:hidden">
-                        {recipient.address.slice(0, 10)}...
-                        {recipient.address.slice(-8)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {recipient.amount}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Settings className="h-4 w-4 text-muted-foreground" />
+                  Distribution Mode
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold capitalize">
+                  {distributionConfig.mode}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {distributionConfig.mode === "send"
+                    ? "Batch transfer"
+                    : "Individual claims"}
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
-          {recipients.length > 10 && (
-            <div className="mt-4 text-center">
-              <Badge variant="secondary">
-                Showing all {recipients.length} recipients
-              </Badge>
-            </div>
+          {/* Recipients Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <FileText className="h-5 w-5" />
+                Recipients List
+              </CardTitle>
+              <CardDescription>
+                Verify all addresses and amounts before proceeding
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded-lg max-h-[400px] overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">#</TableHead>
+                      <TableHead>Wallet Address</TableHead>
+                      <TableHead className="text-right">
+                        Amount (CELO)
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recipients.map((recipient, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">
+                          {index + 1}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs md:text-sm">
+                          <span className="hidden md:inline">
+                            {recipient.address}
+                          </span>
+                          <span className="md:hidden">
+                            {recipient.address.slice(0, 10)}...
+                            {recipient.address.slice(-8)}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          {recipient.amount}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {recipients.length > 10 && (
+                <div className="mt-4 text-center">
+                  <Badge variant="secondary">
+                    Showing all {recipients.length} recipients
+                  </Badge>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Error Display */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-sm">{error}</AlertDescription>
+            </Alert>
           )}
-        </CardContent>
-      </Card>
 
-      {/* Error Display */}
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="text-sm">{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Info */}
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription className="text-sm">
-          You're about to distribute <strong>{totalAmount.toLocaleString()} CELO</strong> to{" "}
-          <strong>{recipients.length}</strong>{" "}
-          {recipients.length === 1 ? "recipient" : "recipients"}. Please ensure
-          you have enough balance to cover the total amount plus gas fees.
-        </AlertDescription>
-      </Alert>
+          {/* Info */}
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              You're about to distribute{" "}
+              <strong>{totalAmount.toLocaleString()} CELO</strong> to{" "}
+              <strong>{recipients.length}</strong>{" "}
+              {recipients.length === 1 ? "recipient" : "recipients"}. Please
+              ensure you have enough balance to cover the total amount plus gas
+              fees.
+            </AlertDescription>
+          </Alert>
 
           {/* Navigation */}
           <div className="flex flex-col md:flex-row gap-3 md:justify-between">
@@ -615,7 +652,9 @@ export function Step4Review({ onBack, recipients, distributionConfig }: Step4Rev
               {isDistributing || isSwitchingChain ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  {isSwitchingChain ? "Switching Network..." : "Distributing..."}
+                  {isSwitchingChain
+                    ? "Switching Network..."
+                    : "Distributing..."}
                 </>
               ) : (
                 <>
