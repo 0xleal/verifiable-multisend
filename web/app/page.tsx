@@ -22,46 +22,58 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card sticky top-0 z-50 backdrop-blur-sm bg-card/95">
+      <header className="border-b-2 border-primary/30 bg-card sticky top-0 z-50 backdrop-blur-sm bg-card/95">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Coins className="h-6 w-6 text-primary-foreground" />
+            <div className="h-10 w-10 bg-primary/10 border-2 border-primary flex items-center justify-center">
+              <Coins className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-xl font-bold">Verifiable Multisend</h1>
-              <p className="text-xs text-muted-foreground">
-                Compliant token distribution
+              <h1 className="text-xl font-bold tracking-wider">
+                &gt; VERIFIABLE_MULTISEND
+              </h1>
+              <p className="text-xs text-muted-foreground font-mono">
+                [COMPLIANT_TOKEN_DISTRIBUTION_v1.0]
               </p>
             </div>
           </div>
           <Link href="/distribute">
-            <Button size="lg" className="gap-2">
-              Launch App <ArrowRight className="h-4 w-4" />
+            <Button
+              size="lg"
+              className="gap-2 border-2 border-primary hover:bg-primary/20 transition-all"
+            >
+              LAUNCH_APP <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
-          <Badge variant="secondary" className="text-sm px-4 py-1">
-            Open Source • Powered by Self Protocol
+      <section className="container mx-auto px-4 py-16 md:py-24 terminal-grid relative">
+        <div className="max-w-4xl mx-auto text-center space-y-6 relative">
+          <Badge
+            variant="secondary"
+            className="text-sm px-4 py-1 border-2 border-primary/50"
+          >
+            [OPEN_SOURCE] • POWERED_BY_SELF_PROTOCOL
           </Badge>
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-balance">
-            Compliant token distribution with zero-knowledge identity
-            verification
+          <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-balance terminal-glow">
+            COMPLIANT_TOKEN_DISTRIBUTION
+            <br />
+            <span className="text-primary">WITH_ZERO_KNOWLEDGE_IDENTITY</span>
           </h2>
-          <p className="text-xl text-muted-foreground text-pretty max-w-2xl mx-auto">
-            Distribute tokens to verified humans while enforcing OFAC screening,
-            country restrictions, and age requirements—without storing any
-            personal data onchain.
+          <p className="text-xl text-muted-foreground text-pretty max-w-2xl mx-auto font-mono">
+            // Distribute tokens to verified humans while enforcing OFAC
+            screening, country restrictions, and age requirements—without
+            storing any personal data onchain.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Link href="/distribute">
-              <Button size="lg" className="gap-2 text-lg h-12 px-8">
-                Get Started <ArrowRight className="h-5 w-5" />
+              <Button
+                size="lg"
+                className="gap-2 text-lg h-12 px-8 border-2 border-primary hover:bg-primary/20 transition-all uppercase tracking-wider"
+              >
+                [START] <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
             <a
@@ -72,33 +84,37 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="gap-2 text-lg h-12 px-8"
+                className="gap-2 text-lg h-12 px-8 border-2 border-primary hover:bg-primary/10 uppercase tracking-wider"
               >
-                View on GitHub
+                [GITHUB]
               </Button>
             </a>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-12">
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">
-                Zero-Knowledge
+            <div className="space-y-2 border-2 border-primary/30 p-4 bg-card/50">
+              <div className="text-3xl font-bold text-primary terminal-glow font-mono">
+                [ZK_PROOF]
               </div>
               <div className="text-sm text-muted-foreground">
-                No personal data onchain
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">Self ID</div>
-              <div className="text-sm text-muted-foreground">
-                Passport-based verification
+                NO_PERSONAL_DATA_ONCHAIN
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">Onchain</div>
+            <div className="space-y-2 border-2 border-primary/30 p-4 bg-card/50">
+              <div className="text-3xl font-bold text-primary terminal-glow font-mono">
+                [SELF_ID]
+              </div>
               <div className="text-sm text-muted-foreground">
-                Verifiable compliance proofs
+                PASSPORT_VERIFICATION
+              </div>
+            </div>
+            <div className="space-y-2 border-2 border-primary/30 p-4 bg-card/50">
+              <div className="text-3xl font-bold text-primary terminal-glow font-mono">
+                [ONCHAIN]
+              </div>
+              <div className="text-sm text-muted-foreground">
+                VERIFIABLE_PROOFS
               </div>
             </div>
           </div>
@@ -106,51 +122,63 @@ export default function Home() {
       </section>
 
       {/* What is Self */}
-      <section className="bg-muted/30 py-16 md:py-24">
+      <section className="bg-muted/30 py-16 md:py-24 border-y-2 border-primary/20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center space-y-4">
-              <h3 className="text-3xl md:text-4xl font-bold">
-                Powered by Self Protocol
+              <div className="text-primary text-sm font-mono mb-2">
+                ═══════════════════════════════════════════
+              </div>
+              <h3 className="text-3xl md:text-4xl font-bold tracking-wider">
+                &gt; POWERED_BY_SELF_PROTOCOL
               </h3>
-              <p className="text-lg text-muted-foreground text-pretty max-w-2xl mx-auto">
-                The leading digital identity infrastructure for Web3. Self
+              <p className="text-lg text-muted-foreground text-pretty max-w-2xl mx-auto font-mono">
+                // The leading digital identity infrastructure for Web3. Self
                 leverages zero-knowledge cryptography to disclose verifiable
                 credentials without revealing sensitive information.
               </p>
+              <div className="text-primary text-sm font-mono mt-2">
+                ═══════════════════════════════════════════
+              </div>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
-              <Card>
+              <Card className="border-2 border-primary/30 bg-card/80 shadow-[4px_4px_0_rgba(255,176,0,0.3)]">
                 <CardHeader>
                   <Shield className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle>Zero-Knowledge Proofs</CardTitle>
-                  <CardDescription>
-                    Verify identity attributes from passports and ID cards
+                  <CardTitle className="font-mono tracking-wide">
+                    [ZK_PROOFS]
+                  </CardTitle>
+                  <CardDescription className="font-mono">
+                    // Verify identity attributes from passports and ID cards
                     without exposing personal data. No third parties. No data
                     leaks.
                   </CardDescription>
                 </CardHeader>
               </Card>
 
-              <Card>
+              <Card className="border-2 border-primary/30 bg-card/80 shadow-[4px_4px_0_rgba(255,176,0,0.3)]">
                 <CardHeader>
                   <Lock className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle>Privacy-First</CardTitle>
-                  <CardDescription>
-                    Users scan their passport with the Self app. ZK proofs
+                  <CardTitle className="font-mono tracking-wide">
+                    [PRIVACY_FIRST]
+                  </CardTitle>
+                  <CardDescription className="font-mono">
+                    // Users scan their passport with the Self app. ZK proofs
                     confirm compliance without revealing nationality, age, or
                     identity.
                   </CardDescription>
                 </CardHeader>
               </Card>
 
-              <Card>
+              <Card className="border-2 border-primary/30 bg-card/80 shadow-[4px_4px_0_rgba(255,176,0,0.3)]">
                 <CardHeader>
                   <CheckCircle2 className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle>Verifiable Onchain</CardTitle>
-                  <CardDescription>
-                    All compliance checks happen onchain with cryptographic
+                  <CardTitle className="font-mono tracking-wide">
+                    [VERIFIABLE_ONCHAIN]
+                  </CardTitle>
+                  <CardDescription className="font-mono">
+                    // All compliance checks happen onchain with cryptographic
                     proofs. Auditable, transparent, and tamper-proof.
                   </CardDescription>
                 </CardHeader>
@@ -389,14 +417,17 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
+      <section className="bg-primary/10 border-y-2 border-primary py-16 md:py-24 terminal-grid">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center space-y-6">
-            <h3 className="text-3xl md:text-4xl font-bold">
-              Ready to distribute tokens compliantly?
+          <div className="max-w-2xl mx-auto text-center space-y-6 border-4 border-primary p-8 bg-card shadow-[8px_8px_0_rgba(255,176,0,0.3)]">
+            <div className="text-primary text-lg font-mono">
+              &gt;&gt;&gt; SYSTEM_READY
+            </div>
+            <h3 className="text-3xl md:text-4xl font-bold tracking-wider terminal-glow">
+              INITIALIZE_DISTRIBUTION?
             </h3>
-            <p className="text-lg opacity-90">
-              Open source infrastructure for token distribution with built-in
+            <p className="text-lg text-muted-foreground font-mono">
+              // Open source infrastructure for token distribution with built-in
               compliance. Powered by Self's zero-knowledge identity
               verification.
             </p>
@@ -404,97 +435,105 @@ export default function Home() {
               <Link href="/distribute">
                 <Button
                   size="lg"
-                  variant="secondary"
-                  className="gap-2 text-lg h-12 px-8"
+                  className="gap-2 text-lg h-12 px-8 border-2 border-primary hover:bg-primary/20 uppercase tracking-wider"
                 >
-                  Launch App <ArrowRight className="h-5 w-5" />
+                  [EXECUTE] <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>
+            </div>
+            <div className="text-primary text-sm font-mono mt-4 terminal-cursor">
+              AWAITING_INPUT
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-card py-12">
+      <footer className="border-t-2 border-primary/30 bg-card py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                  <Coins className="h-5 w-5 text-primary-foreground" />
+                <div className="h-8 w-8 bg-primary/10 border-2 border-primary flex items-center justify-center">
+                  <Coins className="h-5 w-5 text-primary" />
                 </div>
-                <span className="font-bold">Verifiable Multisend</span>
+                <span className="font-bold font-mono tracking-wider">
+                  VERIFIABLE_MULTISEND
+                </span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Open-source infrastructure for compliant token distribution.
+              <p className="text-sm text-muted-foreground font-mono">
+                // Open-source infrastructure for compliant token distribution.
               </p>
             </div>
 
             <div className="space-y-4">
-              <h5 className="font-semibold">Resources</h5>
-              <div className="space-y-2 text-sm">
+              <h5 className="font-semibold font-mono tracking-wider">
+                [RESOURCES]
+              </h5>
+              <div className="space-y-2 text-sm font-mono">
                 <a
                   href="https://github.com/0xleal/verifiable-multisend"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-muted-foreground hover:text-foreground transition-colors"
+                  className="block text-muted-foreground hover:text-primary transition-colors"
                 >
-                  GitHub Repository
+                  &gt; GitHub_Repository
                 </a>
                 <a
                   href="https://docs.self.xyz"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-muted-foreground hover:text-foreground transition-colors"
+                  className="block text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Self.xyz Documentation
+                  &gt; Self.xyz_Docs
                 </a>
                 <a
                   href="https://docs.celo.org"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-muted-foreground hover:text-foreground transition-colors"
+                  className="block text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Celo Documentation
+                  &gt; Celo_Docs
                 </a>
               </div>
             </div>
 
             <div className="space-y-4">
-              <h5 className="font-semibold">Network</h5>
-              <div className="space-y-2 text-sm">
+              <h5 className="font-semibold font-mono tracking-wider">
+                [NETWORK]
+              </h5>
+              <div className="space-y-2 text-sm font-mono">
                 <div className="text-muted-foreground">
-                  Celo Sepolia (Testnet)
+                  STATUS: Celo_Sepolia_(Testnet)
                 </div>
                 <a
                   href="https://sepolia.celoscan.io"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-muted-foreground hover:text-foreground transition-colors"
+                  className="block text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Block Explorer
+                  &gt; Block_Explorer
                 </a>
                 <a
                   href="https://faucet.celo.org/alfajores"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-muted-foreground hover:text-foreground transition-colors"
+                  className="block text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Get Testnet Tokens
+                  &gt; Get_Testnet_Tokens
                 </a>
               </div>
             </div>
           </div>
 
-          <div className="max-w-4xl mx-auto pt-8 mt-8 border-t text-center text-sm text-muted-foreground">
+          <div className="max-w-4xl mx-auto pt-8 mt-8 border-t-2 border-primary/20 text-center text-sm text-muted-foreground font-mono">
             <p>
-              Built with{" "}
+              // Built with{" "}
               <a
                 href="https://self.xyz"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-foreground hover:underline"
+                className="text-primary hover:underline"
               >
                 Self.xyz
               </a>{" "}
@@ -503,11 +542,11 @@ export default function Home() {
                 href="https://celo.org"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-foreground hover:underline"
+                className="text-primary hover:underline"
               >
                 Celo
               </a>
-              . Open source under MIT License.
+              . Open_source_under_MIT_License.
             </p>
           </div>
         </div>

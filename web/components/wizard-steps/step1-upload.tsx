@@ -223,7 +223,7 @@ export function Step1Upload({ onNext, initialData }: Step1UploadProps) {
 0x3456789012345678901234567890123456789012,150`}
               value={csvText}
               onChange={(e) => handleTextChange(e.target.value)}
-              className="font-mono text-xs md:text-sm min-h-[180px] md:min-h-[200px]"
+              className="font-mono text-xs md:text-sm min-h-[180px] md:min-h-[200px] border-2 border-primary/30 placeholder:opacity-40"
             />
             <p className="text-xs text-muted-foreground">
               Example: 0x1234...,100 (one recipient per line)

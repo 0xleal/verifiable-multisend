@@ -391,4 +391,4 @@ export const CeloVerificationRegistryAbi = [
   },
 ] as const;
 
-export default CeloChainVerificationRegistryAbi;
+export default CeloVerificationRegistryAbi;

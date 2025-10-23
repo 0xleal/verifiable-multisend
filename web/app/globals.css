@@ -3,80 +3,66 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Retro 80s Terminal Theme */
 :root {
-  --background: oklch(0.98 0.005 85);
-  --foreground: oklch(0.15 0.01 265);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.01 265);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.01 265);
-  --primary: oklch(0.45 0.15 265);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.92 0.01 265);
-  --secondary-foreground: oklch(0.15 0.01 265);
-  --muted: oklch(0.95 0.005 265);
-  --muted-foreground: oklch(0.5 0.01 265);
-  --accent: oklch(0.55 0.18 160);
-  --accent-foreground: oklch(0.99 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.88 0.01 265);
-  --input: oklch(0.88 0.01 265);
-  --ring: oklch(0.45 0.15 265);
-  --chart-1: oklch(0.55 0.18 160);
-  --chart-2: oklch(0.45 0.15 265);
-  --chart-3: oklch(0.65 0.12 200);
-  --chart-4: oklch(0.75 0.08 140);
-  --chart-5: oklch(0.35 0.12 280);
-  --radius: 0.5rem;
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Classic green phosphor terminal */
+  /* --terminal-green: #00ff41;
+  --terminal-green-dim: #00cc33;
+  --terminal-green-dark: #008822;
+  --terminal-glow-rgb: 0, 255, 65; */
+
+  /* Amber/Orange alternative */
+  --terminal-green: #ffb000;
+  --terminal-green-dim: #ff9500;
+  --terminal-green-dark: #cc7700;
+  --terminal-glow-rgb: 255, 176, 0;
+
+  --terminal-bg: #0a0a0a;
+  --terminal-bg-light: #121212;
+
+  --background: var(--terminal-bg);
+  --foreground: var(--terminal-green);
+  --card: var(--terminal-bg-light);
+  --card-foreground: var(--terminal-green);
+  --popover: var(--terminal-bg-light);
+  --popover-foreground: var(--terminal-green);
+  --primary: var(--terminal-green);
+  --primary-foreground: var(--terminal-bg);
+  --secondary: var(--terminal-green-dark);
+  --secondary-foreground: var(--terminal-green);
+  --muted: #1a1a1a;
+  --muted-foreground: var(--terminal-green-dim);
+  --accent: var(--terminal-green);
+  --accent-foreground: var(--terminal-bg);
+  --destructive: #ff3333;
+  --destructive-foreground: var(--terminal-bg);
+  --border: var(--terminal-green-dark);
+  --input: var(--terminal-bg-light);
+  --ring: var(--terminal-green);
+  --chart-1: var(--terminal-green);
+  --chart-2: #00ddff;
+  --chart-3: #ffff00;
+  --chart-4: #ff00ff;
+  --chart-5: #00ffff;
+  --radius: 0px; /* Sharp corners for retro look */
+  --sidebar: var(--terminal-bg-light);
+  --sidebar-foreground: var(--terminal-green);
+  --sidebar-primary: var(--terminal-green);
+  --sidebar-primary-foreground: var(--terminal-bg);
+  --sidebar-accent: var(--terminal-bg);
+  --sidebar-accent-foreground: var(--terminal-green);
+  --sidebar-border: var(--terminal-green-dark);
+  --sidebar-ring: var(--terminal-green);
 }
 
 .dark {
-  --background: oklch(0.12 0.01 265);
-  --foreground: oklch(0.98 0.005 265);
-  --card: oklch(0.15 0.01 265);
-  --card-foreground: oklch(0.98 0.005 265);
-  --popover: oklch(0.15 0.01 265);
-  --popover-foreground: oklch(0.98 0.005 265);
-  --primary: oklch(0.65 0.18 265);
-  --primary-foreground: oklch(0.12 0.01 265);
-  --secondary: oklch(0.22 0.01 265);
-  --secondary-foreground: oklch(0.98 0.005 265);
-  --muted: oklch(0.22 0.01 265);
-  --muted-foreground: oklch(0.6 0.01 265);
-  --accent: oklch(0.55 0.18 160);
-  --accent-foreground: oklch(0.12 0.01 265);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.25 0.01 265);
-  --input: oklch(0.25 0.01 265);
-  --ring: oklch(0.65 0.18 265);
-  --chart-1: oklch(0.55 0.18 160);
-  --chart-2: oklch(0.65 0.18 265);
-  --chart-3: oklch(0.65 0.12 200);
-  --chart-4: oklch(0.75 0.08 140);
-  --chart-5: oklch(0.45 0.12 280);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* Inherit from :root, dark mode uses same terminal colors */
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  /* Use monospace for everything in retro terminal mode */
+  --font-sans: "Geist Mono", "Courier New", monospace;
+  --font-mono: "Geist Mono", "Courier New", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -101,10 +87,10 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -121,6 +107,88 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Geist Mono", "Courier New", monospace;
+    position: relative;
+  }
+
+  /* CRT scanlines effect */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* CRT flicker/glow effect */
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(var(--terminal-glow-rgb), 0.05) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: 9998;
+    animation: flicker 0.15s infinite;
+  }
+
+  /* Text glow effect */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-shadow:
+      0 0 8px var(--terminal-green),
+      0 0 12px var(--terminal-green);
+  }
+
+  /* Stronger glow for primary elements */
+  .text-primary,
+  button,
+  a {
+    text-shadow: 0 0 6px var(--terminal-green);
+  }
+}
+
+/* Retro CRT animations */
+@keyframes flicker {
+  0% {
+    opacity: 0.97;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.97;
+  }
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
   }
 }
 
@@ -209,4 +277,88 @@
 
 .animate-fade-in {
   animation: fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Retro terminal utility classes */
+.terminal-border {
+  border: 2px solid var(--terminal-green-dark);
+  box-shadow:
+    0 0 10px rgba(var(--terminal-glow-rgb), 0.3),
+    inset 0 0 10px rgba(var(--terminal-glow-rgb), 0.1);
+}
+
+.terminal-glow {
+  text-shadow:
+    0 0 8px var(--terminal-green),
+    0 0 12px var(--terminal-green),
+    0 0 16px var(--terminal-green);
+}
+
+.terminal-cursor::after {
+  content: "▮";
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+.terminal-grid {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      var(--terminal-green-dark) 0px,
+      transparent 1px,
+      transparent 20px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--terminal-green-dark) 0px,
+      transparent 1px,
+      transparent 20px
+    );
+  background-size: 20px 20px;
+}
+
+.retro-button {
+  border: 2px solid var(--terminal-green);
+  background: var(--terminal-bg-light);
+  color: var(--terminal-green);
+  text-shadow: 0 0 6px var(--terminal-green);
+  transition: all 0.1s;
+  position: relative;
+}
+
+.retro-button:hover {
+  background: var(--terminal-green-dark);
+  box-shadow:
+    0 0 15px rgba(var(--terminal-glow-rgb), 0.5),
+    inset 0 0 15px rgba(var(--terminal-glow-rgb), 0.2);
+}
+
+.retro-button:active {
+  transform: translate(1px, 1px);
+}
+
+.retro-card {
+  border: 2px solid var(--terminal-green-dark);
+  background: var(--terminal-bg-light);
+  box-shadow: 4px 4px 0 rgba(0, 255, 65, 0.3);
+  position: relative;
+}
+
+.retro-card::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(
+    45deg,
+    transparent 48%,
+    var(--terminal-green-dark) 49%,
+    var(--terminal-green-dark) 51%,
+    transparent 52%
+  );
+  background-size: 10px 10px;
+  opacity: 0.1;
+  pointer-events: none;
 }
