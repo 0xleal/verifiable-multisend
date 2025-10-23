@@ -8,9 +8,9 @@ import { config } from "@/lib/wagmi-config";
 import { useState } from "react";
 import { AirdropSyncHandler } from "./airdrop-sync-handler";
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
+const queryClient = new QueryClient();
 
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
