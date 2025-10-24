@@ -78,39 +78,10 @@ async function main() {
   // We'll use a placeholder since we don't have the exact Celo registry address at compile time
   // The actual scope will be fetched from Celo registry if available
 
-  let scope = BigInt(0);
-  if (celoRegistry) {
-    console.log(`📊 Fetching scope from Celo registry...`);
-    try {
-      // Connect to Celo to read scope
-      const celoProvider = new ethers.JsonRpcProvider(celoConfig.rpcUrl);
-      const celoRegistryContract = await ethers.getContractAt(
-        "CeloVerificationRegistry",
-        celoRegistry,
-        celoProvider,
-      );
-      scope = await celoRegistryContract.getScope();
-      console.log(`✓ Scope from Celo: ${scope}`);
-    } catch (error) {
-      console.warn(
-        `⚠️  Could not fetch scope from Celo. Using calculated value.`,
-      );
-      // Fallback: calculate scope hash manually
-      const scopeHash = ethers.keccak256(
-        ethers.solidityPacked(
-          ["string", "address"],
-          [VERIFICATION_SCOPE_SEED, celoRegistry],
-        ),
-      );
-      scope = BigInt(scopeHash);
-      console.log(`⚠️  Calculated scope: ${scope}`);
-    }
-  } else {
-    console.warn(
-      `⚠️  No Celo registry address. Using default scope. You MUST update this!`,
+  const scope =
+    BigInt(
+      18153993809346261999279722009416982659552099401436379152149801012636349836571n,
     );
-    scope = BigInt(12345); // Placeholder
-  }
 
   // ===== 1. Deploy CrossChainVerificationRegistry =====
   console.log("\n📝 [1/3] Deploying CrossChainVerificationRegistry...");

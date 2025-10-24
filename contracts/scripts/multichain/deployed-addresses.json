@@ -1,12 +1,12 @@
 {
   "celoSepolia": {
-    "registry": "0x8358A0aA8b6D13DA961192b2eF59e01CfE910611",
-    "multiSend": "0x8BeC142e20177bA1c2D88A800919bd62CbeAb78c",
-    "airdrop": "0xFcAaD270954B9c841f5f622EBD3E016cAeCdc905"
+    "registry": "0x9f0eA3fc541415BaacED50dacb06FFdc7ADced72",
+    "multiSend": "0x5787B4FDcb1437Cc6fcEFAb845924E1697ed5fE2",
+    "airdrop": "0x120e3798B2284f875659813101BB984D56c36022"
   },
   "baseSepolia": {
-    "registry": "0xd05f92110e3cF70944f8cF2D441850c2426D4A1C",
-    "multiSend": "0x3dff401b75C18E3A11fAa352D0414Bba545ae44a",
-    "airdrop": "0xEdc5Ca6Ac5033A4AbcB39b01D236CE1b0216E620"
+    "registry": "0x1b0e6584Caf81f1cBca7Fb390192aAa192074C4d",
+    "multiSend": "0xF6368F4464f6D571aa1C061D5279b52F5FC79BE0",
+    "airdrop": "0x0F6086351cbC9caF0b74d985a2876A6F14b08A70"
   }
 }

@@ -26,7 +26,7 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     chainId: 11142220, // Celo Sepolia chain ID
     hyperlane: {
       mailbox: "0xD0680F80F4f947968206806C2598Cbc5b6FE5b03", // Hyperlane Mailbox on Celo Sepolia
-      domain: 11155420, // Hyperlane domain ID for Celo Sepolia
+      domain: 11142220, // Hyperlane domain ID for Celo Sepolia
     },
     selfxyz: {
       hubV2: "0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74", // Self.xyz IdentityVerificationHub on Celo Sepolia

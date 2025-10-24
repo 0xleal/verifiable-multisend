@@ -24,13 +24,13 @@ export const CHAIN_CONFIGS: Record<number, ChainConfig> = {
   [celoSepolia.id]: {
     chain: celoSepolia,
     verificationRegistryAddress:
-      "0x8358A0aA8b6D13DA961192b2eF59e01CfE910611".toLowerCase() as `0x${string}`,
+      "0x9f0eA3fc541415BaacED50dacb06FFdc7ADced72".toLowerCase() as `0x${string}`,
     verificationRegistryAbi: CeloVerificationRegistryAbi,
     distributionContractAddress:
-      "0x8BeC142e20177bA1c2D88A800919bd62CbeAb78c".toLowerCase() as `0x${string}`,
+      "0x5787B4FDcb1437Cc6fcEFAb845924E1697ed5fE2".toLowerCase() as `0x${string}`,
     distributionContractAbi: SelfVerifiedMultiSendAbi,
     airdropContractAddress:
-      "0xFcAaD270954B9c841f5f622EBD3E016cAeCdc905".toLowerCase() as `0x${string}`,
+      "0x120e3798B2284f875659813101BB984D56c36022".toLowerCase() as `0x${string}`,
     canVerifyDirectly: true,
     scopeSeed: "humanpay-multichain",
     selfEndpointType: "staging_celo",
@@ -38,13 +38,13 @@ export const CHAIN_CONFIGS: Record<number, ChainConfig> = {
   [baseSepolia.id]: {
     chain: baseSepolia,
     verificationRegistryAddress:
-      "0xd05f92110e3cF70944f8cF2D441850c2426D4A1C".toLowerCase() as `0x${string}`,
+      "0x1b0e6584Caf81f1cBca7Fb390192aAa192074C4d".toLowerCase() as `0x${string}`,
     verificationRegistryAbi: CrossChainVerificationRegistryAbi,
     distributionContractAddress:
-      "0x3dff401b75C18E3A11fAa352D0414Bba545ae44a".toLowerCase() as `0x${string}`,
+      "0xF6368F4464f6D571aa1C061D5279b52F5FC79BE0".toLowerCase() as `0x${string}`,
     distributionContractAbi: SelfVerifiedMultiSendAbi,
     airdropContractAddress:
-      "0xEdc5Ca6Ac5033A4AbcB39b01D236CE1b0216E620".toLowerCase() as `0x${string}`,
+      "0x0F6086351cbC9caF0b74d985a2876A6F14b08A70".toLowerCase() as `0x${string}`,
     canVerifyDirectly: false, // Base receives verifications via Hyperlane
     scopeSeed: "humanpay-multichain",
     selfEndpointType: "staging_celo", // Verification always happens on Celo
@@ -52,7 +52,7 @@ export const CHAIN_CONFIGS: Record<number, ChainConfig> = {
 };
 
 export const SUPPORTED_CHAINS = Object.values(CHAIN_CONFIGS).map(
-  (config) => config.chain,
+  (config) => config.chain
 );
 
 export function getChainConfig(chainId: number): ChainConfig | undefined {
