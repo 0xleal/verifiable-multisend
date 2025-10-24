@@ -36,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { WalletConnectButton } from "@/components/wallet-connect-button";
 import { SelfVerifiedAirdropAbi } from "@/lib/contracts/self-verified-airdrop-abi";
 import { getChainConfig } from "@/lib/chain-config";
+import { VerificationModal } from "@/components/verification-modal";
 
 interface AirdropData {
   id: string;
@@ -72,6 +73,7 @@ export default function ClaimPage({
   const [claiming, setClaiming] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [verificationModalOpen, setVerificationModalOpen] = useState(false);
 
   // Parse chain from URL
   const chainSlug = resolvedParams.chain;
@@ -151,8 +153,25 @@ export default function ClaimPage({
     }
   );
 
-  // Check if user is verified on the verification registry
-  const { data: verificationData, refetch: refetchVerification } =
+  // Always check Celo for verification (source of truth)
+  const celoConfig = getChainConfig(celoSepolia.id);
+  const { data: celoVerificationData, refetch: refetchCeloVerification } =
+    useReadContract({
+      address: celoConfig?.verificationRegistryAddress,
+      abi: celoConfig?.verificationRegistryAbi,
+      functionName: "verificationExpiresAt",
+      args: address ? [address] : undefined,
+      chainId: celoSepolia.id,
+      query: {
+        enabled: !!address && !!celoConfig,
+      },
+    } as any);
+
+  const isVerifiedOnCelo: boolean =
+    !!celoVerificationData && Number(celoVerificationData) > Date.now() / 1000;
+
+  // Check if user is verified on the target chain (where they're claiming)
+  const { data: targetVerificationData, refetch: refetchTargetVerification } =
     useReadContract({
       address: chainConfig?.verificationRegistryAddress,
       abi: chainConfig?.verificationRegistryAbi,
@@ -164,8 +183,16 @@ export default function ClaimPage({
       },
     } as any);
 
-  const isVerified: boolean =
-    !!verificationData && Number(verificationData) > Date.now() / 1000;
+  const isVerifiedOnTarget: boolean =
+    !!targetVerificationData && Number(targetVerificationData) > Date.now() / 1000;
+
+  // User is fully verified if:
+  // - Claiming on Celo: verified on Celo
+  // - Claiming on Base: verified on Base (which requires Celo verification + relay)
+  const isVerified: boolean = isVerifiedOnTarget;
+
+  // User needs relay if verified on Celo but not on target chain
+  const needsRelay: boolean = isVerifiedOnCelo && !isVerifiedOnTarget && targetChain.id !== celoSepolia.id;
 
   // Check if user has claimed
   const { data: hasClaimed } = useReadContract({
@@ -232,11 +259,13 @@ export default function ClaimPage({
   };
 
   const handleVerify = () => {
-    // TODO: Implement Self verification flow
-    // For now, show message to user
-    alert(
-      "Self verification integration coming soon. For testing, use the trigger function directly."
-    );
+    setVerificationModalOpen(true);
+  };
+
+  const handleVerificationComplete = () => {
+    // Refetch verification status after modal completes
+    refetchCeloVerification();
+    refetchTargetVerification();
   };
 
   // Loading state
@@ -476,25 +505,30 @@ export default function ClaimPage({
             </Card>
           )}
 
-          {/* User not verified */}
+          {/* User not verified OR needs relay */}
           {address && !isVerified && airdropExistsOnchain && (
             <Card>
               <CardHeader>
-                <CardTitle>Verification Required</CardTitle>
+                <CardTitle>
+                  {needsRelay ? "Relay Required" : "Verification Required"}
+                </CardTitle>
                 <CardDescription>
-                  You need to verify your identity with Self before claiming
+                  {needsRelay
+                    ? "You're verified on Celo, but need to relay to Base before claiming"
+                    : "You need to verify your identity with Self before claiming"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    This airdrop requires Self verification to prevent bots and
-                    ensure fair distribution
+                    {needsRelay
+                      ? "Your verification needs to be bridged from Celo to Base via Hyperlane. This is a one-time cross-chain message that costs ~0.01 ETH."
+                      : "This airdrop requires Self verification to prevent bots and ensure fair distribution"}
                   </AlertDescription>
                 </Alert>
                 <Button onClick={handleVerify} className="w-full">
-                  Verify with Self
+                  {needsRelay ? "Relay Verification to Base" : "Verify with Self"}
                 </Button>
               </CardContent>
             </Card>
@@ -600,6 +634,15 @@ export default function ClaimPage({
             )}
         </div>
       </main>
+
+      {/* Verification Modal */}
+      <VerificationModal
+        open={verificationModalOpen}
+        onOpenChange={setVerificationModalOpen}
+        targetChainId={targetChain.id}
+        onVerificationComplete={handleVerificationComplete}
+        alreadyVerifiedOnCelo={isVerifiedOnCelo}
+      />
     </div>
   );
 }
