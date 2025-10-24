@@ -24,13 +24,13 @@ export const CHAIN_CONFIGS: Record<number, ChainConfig> = {
   [celoSepolia.id]: {
     chain: celoSepolia,
     verificationRegistryAddress:
-      "0xEe6A46D2E961021db4852adde243c28DA1bD53f1".toLowerCase() as `0x${string}`,
+      "0x8358A0aA8b6D13DA961192b2eF59e01CfE910611".toLowerCase() as `0x${string}`,
     verificationRegistryAbi: CeloVerificationRegistryAbi,
     distributionContractAddress:
-      "0x5A9cC776EEB1DD7661a2a048a1c50Da6315f4b92".toLowerCase() as `0x${string}`,
+      "0x8BeC142e20177bA1c2D88A800919bd62CbeAb78c".toLowerCase() as `0x${string}`,
     distributionContractAbi: SelfVerifiedMultiSendAbi,
     airdropContractAddress:
-      "0x09fA00cAA728f873D76675fE4AdEB90427c767CF".toLowerCase() as `0x${string}`,
+      "0xFcAaD270954B9c841f5f622EBD3E016cAeCdc905".toLowerCase() as `0x${string}`,
     canVerifyDirectly: true,
     scopeSeed: "humanpay-multichain",
     selfEndpointType: "staging_celo",
@@ -38,13 +38,13 @@ export const CHAIN_CONFIGS: Record<number, ChainConfig> = {
   [baseSepolia.id]: {
     chain: baseSepolia,
     verificationRegistryAddress:
-      "0x73336E60E2D49Fa8485FA6C9E22fB27a1F7bad8d".toLowerCase() as `0x${string}`,
+      "0xd05f92110e3cF70944f8cF2D441850c2426D4A1C".toLowerCase() as `0x${string}`,
     verificationRegistryAbi: CrossChainVerificationRegistryAbi,
     distributionContractAddress:
-      "0xA12EDFa6B98897c47C4Ff74bCD2fd186DFa97BF6".toLowerCase() as `0x${string}`,
+      "0x3dff401b75C18E3A11fAa352D0414Bba545ae44a".toLowerCase() as `0x${string}`,
     distributionContractAbi: SelfVerifiedMultiSendAbi,
     airdropContractAddress:
-      "0xB68adc32810e99bfEc240a6dFD66c3cA90668028".toLowerCase() as `0x${string}`,
+      "0xEdc5Ca6Ac5033A4AbcB39b01D236CE1b0216E620".toLowerCase() as `0x${string}`,
     canVerifyDirectly: false, // Base receives verifications via Hyperlane
     scopeSeed: "humanpay-multichain",
     selfEndpointType: "staging_celo", // Verification always happens on Celo

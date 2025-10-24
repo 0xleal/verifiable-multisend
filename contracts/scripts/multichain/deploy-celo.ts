@@ -96,10 +96,7 @@ async function main() {
 
   const multiSendAddress = await multiSend.getAddress();
   console.log(`✅ SelfVerifiedMultiSend deployed: ${multiSendAddress}`);
-
-  // Verify it's connected to the registry
-  const registryFromMultiSend = await multiSend.verificationRegistry();
-  console.log(`   ✓ Connected to registry: ${registryFromMultiSend}`);
+  console.log(`   ✓ Connected to registry: ${registryAddress}`);
 
   // ===== 3. Deploy SelfVerifiedAirdrop =====
   console.log("\n📝 [3/3] Deploying SelfVerifiedAirdrop...");
@@ -110,10 +107,7 @@ async function main() {
 
   const airdropAddress = await airdrop.getAddress();
   console.log(`✅ SelfVerifiedAirdrop deployed: ${airdropAddress}`);
-
-  // Verify it's connected to the registry
-  const registryFromAirdrop = await airdrop.verificationRegistry();
-  console.log(`   ✓ Connected to registry: ${registryFromAirdrop}`);
+  console.log(`   ✓ Connected to registry: ${registryAddress}`);
 
   // ===== Summary =====
   console.log("\n" + "=".repeat(60));

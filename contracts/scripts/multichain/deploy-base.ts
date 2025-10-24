@@ -30,7 +30,10 @@ async function main() {
 
   // Validate environment
   validateEnvironment();
-  const celoRegistry = "0xEe6A46D2E961021db4852adde243c28DA1bD53f1";
+
+  // Load Celo registry address from deployed-addresses.json
+  const deployedAddresses = loadDeployedAddresses();
+  const celoRegistry = deployedAddresses.celoSepolia?.registry;
 
   if (!celoRegistry) {
     console.warn(
@@ -126,6 +129,9 @@ async function main() {
   console.log(`✅ CrossChainVerificationRegistry deployed: ${registryAddress}`);
   console.log(`   ✓ Source domain: ${celoConfig.hyperlane.domain} (Celo)`);
   console.log(`   ✓ Scope: ${scope}`);
+
+  // Wait for contract to propagate
+  await sleep(5000);
 
   // Add Celo registry as trusted sender if we have it
   if (celoRegistry) {

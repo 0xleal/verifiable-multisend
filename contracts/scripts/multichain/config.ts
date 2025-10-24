@@ -57,12 +57,12 @@ export const VERIFICATION_SCOPE_SEED = "humanpay-multichain";
 
 /**
  * Self.xyz verification config ID
- * Default config: no age/country restrictions (for testing)
+ * Config registered via tools.self.xyz: 18+, OFAC Basic, no country restrictions
+ * This enforces age verification (18+) and basic OFAC screening
  * Generate custom configs at: https://tools.self.xyz
- * This enforces age verification, country restrictions, OFAC checks, etc.
  */
 export const VERIFICATION_CONFIG_ID =
-  "0xb26cf7b8241189fc0e21080899fcb88ff11b8d1e58eb1eded5db28ebdcb0e718"; // Default config (no restrictions)
+  "0x32332b93ed35ffa75a313b4b2f3e096490739747c872307590d30cf7e936483a"; // Age 18+, OFAC Basic
 
 /**
  * Gas limits for deployment transactions

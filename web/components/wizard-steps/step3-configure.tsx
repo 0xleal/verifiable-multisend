@@ -256,7 +256,7 @@ export function Step3Configure({
                 placeholder="e.g., talent-q1-2025"
                 value={airdropId}
                 onChange={(e) => setAirdropId(e.target.value.toLowerCase())}
-                className="font-mono text-sm"
+                className="font-mono text-sm border-2"
                 maxLength={50}
               />
               {airdropId && !isValidAirdropId(airdropId) && (
@@ -292,7 +292,7 @@ export function Step3Configure({
               placeholder="0x... (Optional)"
               value={tokenAddress}
               onChange={(e) => setTokenAddress(e.target.value)}
-              className="font-mono text-sm"
+              className="font-mono text-sm border-2"
             />
           </div>
 

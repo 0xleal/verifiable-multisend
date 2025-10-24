@@ -90,6 +90,7 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
   ]);
 
   const handleNext = () => {
+    console.log("is verified: ", isVerified);
     if (isVerified) {
       onNext();
     }
