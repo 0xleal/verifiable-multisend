@@ -96,16 +96,17 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
     }
   };
 
-  // Auto-advance if already verified
+  // Auto-advance after successful verification
   useEffect(() => {
-    if (isVerified && !verificationSuccess) {
-      // Give user a moment to see the verified status
-      const timer = setTimeout(() => {
-        // onNext(); // Commented out - let user click next manually
+    if (verificationSuccess) {
+      // Give user a moment to see the success message, then refetch and advance
+      const timer = setTimeout(async () => {
+        await refetchExpiresAt?.();
+        onNext();
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [isVerified, verificationSuccess, onNext]);
+  }, [verificationSuccess, onNext, refetchExpiresAt]);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -205,9 +206,6 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
                       selfApp={selfApp}
                       onSuccess={() => {
                         setVerificationSuccess(true);
-                        setTimeout(() => {
-                          refetchExpiresAt?.();
-                        }, 1000);
                       }}
                       onError={(error) => {
                         console.error("Verification error:", error);
