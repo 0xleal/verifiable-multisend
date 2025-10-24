@@ -42,20 +42,19 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
   const chainId = verificationConfig.chain.id;
   const scopeSeed = verificationConfig.scopeSeed;
 
-  const { data: expiresAt, refetch: refetchExpiresAt } = useReadContract({
+  const {
+    data: isVerified,
+    refetch: refetchExpiresAt,
+    status: status,
+    error: errorReport,
+  } = useReadContract({
     address: contractAddress,
     abi: verificationConfig.verificationRegistryAbi,
-    functionName: "verificationExpiresAt",
+    functionName: "isVerified",
     args: [address ?? "0x0000000000000000000000000000000000000000"],
     chainId,
     query: { enabled: !!contractAddress && !!address },
   } as any);
-
-  const isVerified = useMemo(() => {
-    if (!expiresAt) return false;
-    const exp = Number(expiresAt as unknown as bigint);
-    return exp > Math.floor(Date.now() / 1000);
-  }, [expiresAt]);
 
   // Build Self app config
   useEffect(() => {
@@ -90,7 +89,6 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
   ]);
 
   const handleNext = () => {
-    console.log("is verified: ", isVerified);
     if (isVerified) {
       onNext();
     }
@@ -99,9 +97,9 @@ export function Step2Verify({ onNext, onBack }: Step2VerifyProps) {
   // Auto-advance after successful verification
   useEffect(() => {
     if (verificationSuccess) {
+      refetchExpiresAt?.();
       // Give user a moment to see the success message, then refetch and advance
       const timer = setTimeout(async () => {
-        await refetchExpiresAt?.();
         onNext();
       }, 1500);
       return () => clearTimeout(timer);

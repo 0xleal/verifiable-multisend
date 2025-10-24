@@ -45,17 +45,19 @@ Create a `.env` file in the `contracts` directory:
 PRIVATE_KEY=0x...your-private-key
 
 # Optional (uses public RPCs if not set)
-CELO_SEPOLIA_RPC=https://alfajores-forno.celo-testnet.org
+CELO_SEPOLIA_RPC=https://forno.celo-sepolia.celo-testnet.org
 BASE_SEPOLIA_RPC=https://sepolia.base.org
 ```
 
 ### 2. Get Testnet Tokens
 
 **Celo Sepolia:**
+
 - Faucet: https://faucet.celo.org
 - Need: ~0.1 CELO for deployment + relay fees
 
 **Base Sepolia:**
+
 - Faucet: https://faucet.quicknode.com/base/sepolia
 - Need: ~0.01 ETH for deployment
 
@@ -85,11 +87,13 @@ npx hardhat run scripts/multichain/deploy-celo.ts --network celo_sepolia
 ```
 
 **What this deploys:**
+
 - ✅ `CeloVerificationRegistry` - Receives Self.xyz proofs, relays to other chains
 - ✅ `SelfVerifiedMultiSend` - Bulk token distributions
 - ✅ `SelfVerifiedAirdrop` - Merkle-based airdrops
 
 **Output:**
+
 ```
 🎉 Celo Sepolia Deployment Complete!
 📋 Deployed Contracts:
@@ -107,17 +111,20 @@ npx hardhat run scripts/multichain/deploy-base.ts --network base_sepolia
 ```
 
 **What this deploys:**
+
 - ✅ `CrossChainVerificationRegistry` - Receives verifications from Celo
 - ✅ `SelfVerifiedMultiSend` - Same contract as Celo
 - ✅ `SelfVerifiedAirdrop` - Same contract as Celo
 
 **Automatic Configuration:**
+
 - Reads Celo registry address from `deployed-addresses.json`
 - Fetches verification scope from Celo
 - Adds Celo registry as trusted sender
 - Enables sender enforcement
 
 **Output:**
+
 ```
 🎉 Base Sepolia Deployment Complete!
 📋 Deployed Contracts:
@@ -142,11 +149,13 @@ Users verify using the Self.xyz mobile app:
 4. Verification stored with 30-day expiry
 
 **Check verification:**
+
 ```bash
 npx hardhat run scripts/multichain/check-verification.ts --network celo_sepolia
 ```
 
 **Or check specific user:**
+
 ```bash
 USER_ADDRESS=0x123... npx hardhat run scripts/multichain/check-verification.ts --network celo_sepolia
 ```
@@ -164,12 +173,14 @@ USER_ADDRESS=0x123... npx hardhat run scripts/multichain/relay-verification.ts -
 ```
 
 **What happens:**
+
 1. ✅ Checks user is verified on Celo
 2. 💰 Estimates Hyperlane relay fees (~0.005 CELO)
 3. 📤 Sends cross-chain message to Base
 4. ⏱️ Hyperlane delivers in 1-5 minutes
 
 **Track delivery:**
+
 - Hyperlane Explorer: https://explorer.hyperlane.xyz/
 - Message includes: user address + expiry timestamp
 
@@ -182,6 +193,7 @@ npx hardhat run scripts/multichain/check-verification.ts --network base_sepolia
 ```
 
 **Expected output:**
+
 ```
 ✅ Status: VERIFIED
 ⏰ Expires: 2024-12-20T10:30:00.000Z
@@ -199,7 +211,7 @@ Once verified, users can distribute tokens:
 
 const multiSend = await ethers.getContractAt(
   "SelfVerifiedMultiSend",
-  "0x...multiSendAddress"
+  "0x...multiSendAddress",
 );
 
 // Distribute ERC20
@@ -207,15 +219,13 @@ await multiSend.airdropERC20(
   tokenAddress,
   [recipient1, recipient2, recipient3],
   [amount1, amount2, amount3],
-  totalAmount
+  totalAmount,
 );
 
 // Distribute ETH
-await multiSend.airdropETH(
-  [recipient1, recipient2],
-  [amount1, amount2],
-  { value: totalAmount }
-);
+await multiSend.airdropETH([recipient1, recipient2], [amount1, amount2], {
+  value: totalAmount,
+});
 ```
 
 ### Airdrop on Base
@@ -232,7 +242,12 @@ const leaves = [
 ];
 
 const elements = leaves.map((leaf, index) =>
-  keccak256(solidityPacked(["uint256", "address", "uint256"], [index, leaf.address, leaf.amount]))
+  keccak256(
+    solidityPacked(
+      ["uint256", "address", "uint256"],
+      [index, leaf.address, leaf.amount],
+    ),
+  ),
 );
 
 const merkleTree = new MerkleTree(elements, keccak256, { sortPairs: true });
@@ -241,14 +256,14 @@ const merkleRoot = merkleTree.getHexRoot();
 // Create airdrop (creator must be verified)
 const airdrop = await ethers.getContractAt(
   "SelfVerifiedAirdrop",
-  "0x...airdropAddress"
+  "0x...airdropAddress",
 );
 
 await airdrop.createAirdropERC20(
   airdropId,
   merkleRoot,
   tokenAddress,
-  totalAmount
+  totalAmount,
 );
 
 // Claimers claim (must be verified)
@@ -319,6 +334,7 @@ npm test -- --grep "Cross-Chain"
 **Problem:** User not verified or expired on Celo.
 
 **Solution:**
+
 ```bash
 # Check status
 npx hardhat run scripts/multichain/check-verification.ts --network celo_sepolia
@@ -331,6 +347,7 @@ npx hardhat run scripts/multichain/check-verification.ts --network celo_sepolia
 **Problem:** Celo registry not whitelisted on Base.
 
 **Solution:**
+
 ```bash
 # Manually add trusted sender
 npx hardhat console --network base_sepolia
@@ -345,6 +362,7 @@ npx hardhat console --network base_sepolia
 **Problem:** Hyperlane mailbox not set or incorrect.
 
 **Solution:**
+
 - Check `config.ts` has correct mailbox addresses
 - Verify: https://docs.hyperlane.xyz/docs/reference/contract-addresses
 
@@ -353,6 +371,7 @@ npx hardhat console --network base_sepolia
 **Problem:** Hyperlane delivery delayed or failed.
 
 **Solution:**
+
 1. Check Hyperlane Explorer: https://explorer.hyperlane.xyz/
 2. Look for your message ID (from relay script output)
 3. Usually arrives in 1-5 minutes
@@ -363,6 +382,7 @@ npx hardhat console --network base_sepolia
 **Problem:** Hub V2 address not updated in config.
 
 **Solution:**
+
 - Check latest addresses: https://docs.self.xyz/deployed-contracts
 - Update `config.ts` → `NETWORKS.celoSepolia.selfxyz.hubV2`
 
@@ -400,11 +420,13 @@ After deployment and testing:
 ## 💬 Support
 
 Need help? Check:
+
 - Test suite: `test/CrossChainVerification.spec.ts` - 85 passing tests
 - Contract source: `contracts/src/` - Fully documented
 - This README - Comprehensive deployment guide
 
 Ready to deploy to production? Remember to:
+
 1. Update to mainnet addresses
 2. Use mainnet RPCs
 3. Audit contracts thoroughly

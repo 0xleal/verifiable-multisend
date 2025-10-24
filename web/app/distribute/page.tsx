@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { WalletConnectButton } from "@/components/wallet-connect-button";
 import { Coins, ArrowLeft } from "lucide-react";
@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { StepIndicator } from "@/components/step-indicator";
 import { Step1Upload } from "@/components/wizard-steps/step1-upload";
 import { Step2Verify } from "@/components/wizard-steps/step2-verify";
+import { Step2_5Relay } from "@/components/wizard-steps/step2_5-relay";
 import {
   Step3Configure,
   type DistributionConfig,
 } from "@/components/wizard-steps/step3-configure";
 import { Step4Review } from "@/components/wizard-steps/step4-review";
 import type { RecipientData } from "@/components/csv-upload";
-import { celoSepolia } from "wagmi/chains";
+import { celoSepolia, baseSepolia } from "wagmi/chains";
 
 const STEPS = [
   {
@@ -65,13 +66,28 @@ export default function DistributePage() {
 
   const handleStep2Next = () => {
     setCompletedSteps((prev) => [...new Set([...prev, 2])]);
+    // Check if we need relay step (will be determined by config, but config is set in step 3)
+    // For now, go to step 3 (configure), and relay check happens after
     goToStep(3, "forward");
+  };
+
+  const handleStep2_5Next = () => {
+    setCompletedSteps((prev) => [...new Set([...prev, 2.5])]);
+    goToStep(4, "forward");
   };
 
   const handleStep3Next = (distributionConfig: DistributionConfig) => {
     setConfig(distributionConfig);
     setCompletedSteps((prev) => [...new Set([...prev, 3])]);
-    goToStep(4, "forward");
+
+    // Check if we need relay step
+    const needsRelay = distributionConfig.chainId === baseSepolia.id;
+
+    if (needsRelay) {
+      goToStep(3.5, "forward"); // Go to relay step
+    } else {
+      goToStep(4, "forward"); // Skip to review
+    }
   };
 
   return (
@@ -134,9 +150,20 @@ export default function DistributePage() {
                 initialConfig={config}
               />
             )}
+            {currentStep === 3.5 && (
+              <Step2_5Relay
+                onNext={handleStep2_5Next}
+                onBack={() => goToStep(3, "back")}
+                distributionConfig={config}
+              />
+            )}
             {currentStep === 4 && (
               <Step4Review
-                onBack={() => goToStep(3, "back")}
+                onBack={() => {
+                  // Go back to relay step if it was shown, otherwise to configure
+                  const needsRelay = config.chainId === baseSepolia.id;
+                  goToStep(needsRelay ? 3.5 : 3, "back");
+                }}
                 recipients={recipients}
                 distributionConfig={config}
               />

@@ -12,14 +12,16 @@ if (!WALLET_CONNECT_ID) {
 // Base Sepolia: Use multiple RPC endpoints for better reliability
 const baseSepoliaTransport = fallback([
   http("https://sepolia.base.org"),
-  http(`https://base-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "demo"}`),
+  http(
+    `https://base-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "demo"}`
+  ),
   http("https://base-sepolia-rpc.publicnode.com"),
 ]);
 
-// Celo Sepolia: Use the default with fallback
+// Celo Sepolia: Use multiple RPC endpoints for better reliability
 const celoSepoliaTransport = fallback([
-  http("https://alfajores-forno.celo-testnet.org"),
-  http(),
+  http("https://forno.celo-sepolia.celo-testnet.org"),
+  http("https://celo-alfajores.publicnode.com"),
 ]);
 
 export const config = createConfig({

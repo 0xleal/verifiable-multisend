@@ -47,6 +47,7 @@ import { DistributionJourneySummary } from "@/components/distribution-journey-su
 import { createMerkleTree } from "@/lib/merkle";
 import { parseUnits } from "ethers";
 import { getChainConfig, getNativeCurrencySymbol } from "@/lib/chain-config";
+import { savePendingSync, removePendingSync } from "@/lib/airdrop-sync-storage";
 
 interface Step4ReviewProps {
   onBack: () => void;
@@ -161,11 +162,18 @@ export function Step4Review({
       }
 
       setTxHash(hash);
+      console.log("Airdrop transaction sent, hash:", hash);
+      console.log("Waiting for receipt on chain:", targetChainId);
 
       const receipt = await waitForTransactionReceipt(wagmiConfig, {
         hash,
         chainId: targetChainId,
+        timeout: 60_000, // 60 second timeout
+        pollingInterval: 1_000, // Poll every 1 second
+        confirmations: 2,
       });
+
+      console.log("Receipt received, status:", receipt.status);
 
       if (receipt.status === "success") {
         // 5. Store merkle data - DEFENSE IN DEPTH
@@ -186,34 +194,36 @@ export function Step4Review({
         };
 
         // CRITICAL: Save to localStorage FIRST (instant backup)
-        const { savePendingSync, removePendingSync } = await import(
-          "@/lib/airdrop-sync-storage"
-        );
+        console.log("Saving airdrop to localStorage:", airdropData.id);
         savePendingSync(distributionConfig.airdropId, airdropData);
 
         // Try to sync to backend immediately
         try {
+          console.log("Calling backend API to save airdrop data...");
           const response = await fetch("/api/airdrops", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(airdropData),
           });
 
+          console.log("Backend API response status:", response.status);
+
           if (response.ok) {
             // Success! Remove from localStorage
             removePendingSync(distributionConfig.airdropId);
             console.log("Airdrop data successfully synced to backend");
           } else {
+            const errorText = await response.text();
             console.warn(
               "Failed to sync airdrop data to backend. Will retry automatically.",
-              await response.text(),
+              errorText
             );
             // Data is safe in localStorage and will be retried by auto-sync
           }
         } catch (e) {
-          console.warn(
+          console.error(
             "Error syncing airdrop data to backend. Will retry automatically.",
-            e,
+            e
           );
           // Data is safe in localStorage and will be retried by auto-sync
         }
@@ -221,6 +231,7 @@ export function Step4Review({
         // Generate chain-specific claim URL
         const chainSlug = targetChainId === 84532 ? "base" : "celo";
         const url = `${window.location.origin}/claim/${chainSlug}/${distributionConfig.airdropId}`;
+        console.log("Setting claim URL and success state:", url);
         setClaimUrl(url);
         setSuccess(true);
       } else {
@@ -263,11 +274,17 @@ export function Step4Review({
       });
 
       setTxHash(hash);
+      console.log("Distribution transaction sent, hash:", hash);
+      console.log("Waiting for receipt on chain:", targetChainId);
 
       const receipt = await waitForTransactionReceipt(wagmiConfig, {
         hash,
         chainId: targetChainId,
+        timeout: 60_000, // 60 second timeout
+        pollingInterval: 1_000, // Poll every 1 second
       });
+
+      console.log("Receipt received, status:", receipt.status);
 
       if (receipt.status === "success") {
         setSuccess(true);
@@ -394,13 +411,13 @@ export function Step4Review({
               <Button
                 variant="outline"
                 onClick={() => window.location.reload()}
-                className="w-full"
+                className="w-full md:w-auto md:flex-1"
               >
                 Create Another Airdrop
               </Button>
               <Button
                 onClick={() => window.open(claimUrl, "_blank")}
-                className="w-full"
+                className="w-full md:w-auto md:flex-1"
               >
                 Open Claim Page
                 <ExternalLink className="h-4 w-4 ml-2" />
@@ -468,7 +485,7 @@ export function Step4Review({
             <Button
               variant="outline"
               onClick={() => window.location.reload()}
-              className="w-full"
+              className="w-full md:w-auto md:flex-1"
             >
               Start New Distribution
             </Button>
@@ -476,10 +493,10 @@ export function Step4Review({
               onClick={() =>
                 window.open(
                   `${chain?.blockExplorers?.default.url}/tx/${txHash}`,
-                  "_blank",
+                  "_blank"
                 )
               }
-              className="w-full"
+              className="w-full md:w-auto md:flex-1"
             >
               View on Explorer
               <ExternalLink className="h-4 w-4 ml-2" />

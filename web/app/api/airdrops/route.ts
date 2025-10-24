@@ -1,22 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AirdropStorage, type AirdropData } from "@/lib/airdrop-storage";
-import { createPublicClient, http, parseEventLogs } from "viem";
-import { celoSepolia } from "viem/chains";
+import {
+  createPublicClient,
+  http,
+  parseEventLogs,
+  type PublicClient,
+} from "viem";
+import { celoSepolia, baseSepolia } from "viem/chains";
 import { SelfVerifiedAirdropAbi } from "@/lib/contracts/self-verified-airdrop-abi";
+import { getChainConfig } from "@/lib/chain-config";
 
-// Environment variables
-const RPC_URL =
-  process.env.CELO_SEPOLIA_RPC_URL ||
-  "https://alfajores-forno.celo-testnet.org";
-const AIRDROP_CONTRACT_ADDRESS = (process.env
-  .NEXT_PUBLIC_AIRDROP_CONTRACT_ADDRESS ||
-  "0x7c2a63e1713578d4d704b462c2dee311a59ae304") as `0x${string}`;
+// Multi-chain configuration
+const CHAIN_CONFIGS = {
+  [celoSepolia.id]: {
+    chain: celoSepolia,
+    rpcUrl: "https://forno.celo-sepolia.celo-testnet.org",
+  },
+  [baseSepolia.id]: {
+    chain: baseSepolia,
+    rpcUrl: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
+  },
+} as const;
 
-// Viem public client for onchain verification
-const publicClient = createPublicClient({
-  chain: celoSepolia,
-  transport: http(RPC_URL),
-});
+// Get public client for specific chain
+function getPublicClient(chainId: number) {
+  const config = CHAIN_CONFIGS[chainId as keyof typeof CHAIN_CONFIGS];
+
+  if (!config) {
+    throw new Error(`Unsupported chain ID: ${chainId}`);
+  }
+
+  return createPublicClient({
+    chain: config.chain,
+    transport: http(config.rpcUrl),
+  });
+}
 
 /**
  * POST /api/airdrops
@@ -33,13 +51,26 @@ export async function POST(request: NextRequest) {
       !data.recipients ||
       !data.merkleRoot ||
       !data.creator ||
-      !data.txHash
+      !data.txHash ||
+      !data.chainId
     ) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields (including chainId)" },
         { status: 400 }
       );
     }
+
+    // Get chain-specific config
+    const chainConfig = getChainConfig(data.chainId);
+    if (!chainConfig) {
+      return NextResponse.json(
+        { error: `Unsupported chain ID: ${data.chainId}` },
+        { status: 400 }
+      );
+    }
+
+    const airdropContractAddress = chainConfig.airdropContractAddress;
+    const publicClient = getPublicClient(data.chainId);
 
     // Check if airdrop already exists
     const exists = await AirdropStorage.exists(data.id);
@@ -99,16 +130,35 @@ export async function POST(request: NextRequest) {
       }
 
       // 5. Read airdrop from contract to verify merkle root
-      const onchainAirdrop = (await publicClient.readContract({
-        address: AIRDROP_CONTRACT_ADDRESS,
+      const onchainAirdropResult = await publicClient.readContract({
+        address: airdropContractAddress,
         abi: SelfVerifiedAirdropAbi,
         functionName: "airdrops",
         args: [data.airdropIdHash as `0x${string}`],
-      })) as any;
+      });
 
+      // Destructure the tuple returned by the contract
+      // struct Airdrop { merkleRoot, tokenAddress, totalAmount, claimedAmount, creator, cancelled }
+      const [
+        onchainMerkleRoot,
+        onchainTokenAddress,
+        onchainTotalAmount,
+        onchainClaimedAmount,
+        onchainCreator,
+        onchainCancelled,
+      ] = onchainAirdropResult as readonly [
+        string,
+        string,
+        bigint,
+        bigint,
+        string,
+        boolean,
+      ];
+
+      // Check if airdrop exists (merkleRoot is zero if not found)
       if (
-        !onchainAirdrop ||
-        onchainAirdrop.merkleRoot ===
+        !onchainMerkleRoot ||
+        onchainMerkleRoot ===
           "0x0000000000000000000000000000000000000000000000000000000000000000"
       ) {
         return NextResponse.json(
@@ -118,10 +168,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 6. Verify merkle root matches
-      if (
-        onchainAirdrop.merkleRoot.toLowerCase() !==
-        data.merkleRoot.toLowerCase()
-      ) {
+      if (onchainMerkleRoot.toLowerCase() !== data.merkleRoot.toLowerCase()) {
         return NextResponse.json(
           {
             error:

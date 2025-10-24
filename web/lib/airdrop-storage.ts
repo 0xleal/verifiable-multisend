@@ -23,6 +23,7 @@ export interface AirdropData {
   txHash: string; // Required now
   blockNumber?: number;
   network: string;
+  chainId: number; // Chain ID for multi-chain support
 }
 
 /**
@@ -41,6 +42,7 @@ function rowToAirdropData(row: AirdropRow): AirdropData {
     txHash: row.tx_hash,
     blockNumber: row.block_number ?? undefined,
     network: row.network,
+    chainId: row.chain_id,
   };
 }
 
@@ -59,6 +61,7 @@ function airdropDataToRow(data: AirdropData): Omit<AirdropRow, "created_at"> {
     tx_hash: data.txHash,
     block_number: data.blockNumber ?? null,
     network: data.network,
+    chain_id: data.chainId,
   };
 }
 

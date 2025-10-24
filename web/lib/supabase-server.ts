@@ -48,5 +48,6 @@ export interface AirdropRow {
   tx_hash: string; // NOT NULL - required
   block_number: number | null;
   network: string;
+  chain_id: number; // Chain ID for multi-chain support
   created_at: string; // Timestamp managed by Supabase
 }

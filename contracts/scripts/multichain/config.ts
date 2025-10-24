@@ -33,7 +33,7 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     },
     rpcUrl:
       process.env.CELO_SEPOLIA_RPC ||
-      "https://alfajores-forno.celo-testnet.org",
+      "https://forno.celo-sepolia.celo-testnet.org",
   },
 
   // Base Sepolia (Destination chain)
