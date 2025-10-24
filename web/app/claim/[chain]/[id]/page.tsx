@@ -151,17 +151,21 @@ export default function ClaimPage({
     }
   );
 
-  // Check if user is verified
-  const { data: isVerified, refetch: refetchVerification } = useReadContract({
-    address: AIRDROP_CONTRACT_ADDRESS,
-    abi: SelfVerifiedAirdropAbi,
-    functionName: "isVerified",
-    args: address ? [address] : undefined,
-    chainId: targetChain.id,
-    query: {
-      enabled: !!address,
-    },
-  });
+  // Check if user is verified on the verification registry
+  const { data: verificationData, refetch: refetchVerification } =
+    useReadContract({
+      address: chainConfig?.verificationRegistryAddress,
+      abi: chainConfig?.verificationRegistryAbi,
+      functionName: "verificationExpiresAt",
+      args: address ? [address] : undefined,
+      chainId: targetChain.id,
+      query: {
+        enabled: !!address && !!chainConfig,
+      },
+    } as any);
+
+  const isVerified: boolean =
+    !!verificationData && Number(verificationData) > Date.now() / 1000;
 
   // Check if user has claimed
   const { data: hasClaimed } = useReadContract({

@@ -3,13 +3,8 @@ export const SelfVerifiedAirdropAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "identityVerificationHubAddress",
+        name: "_verificationRegistry",
         type: "address",
-      },
-      {
-        internalType: "string",
-        name: "scopeSeed",
-        type: "string",
       },
     ],
     stateMutability: "nonpayable",
@@ -69,17 +64,7 @@ export const SelfVerifiedAirdropAbi = [
   },
   {
     inputs: [],
-    name: "InvalidDataFormat",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "InvalidProof",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "InvalidUserIdentifier",
     type: "error",
   },
   {
@@ -101,38 +86,11 @@ export const SelfVerifiedAirdropAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-    ],
-    name: "OwnableInvalidOwner",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "OwnableUnauthorizedAccount",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
         name: "token",
         type: "address",
       },
     ],
     name: "SafeERC20FailedOperation",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "UnauthorizedCaller",
     type: "error",
   },
   {
@@ -217,44 +175,6 @@ export const SelfVerifiedAirdropAbi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "previousOwner",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "OwnershipTransferred",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "expiresAt",
-        type: "uint256",
-      },
-    ],
-    name: "SenderVerified",
-    type: "event",
-  },
-  {
     inputs: [
       {
         internalType: "bytes32",
@@ -288,6 +208,11 @@ export const SelfVerifiedAirdropAbi = [
         internalType: "address",
         name: "creator",
         type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "cancelled",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -427,35 +352,6 @@ export const SelfVerifiedAirdropAbi = [
         type: "bytes32",
       },
       {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes",
-        name: "",
-        type: "bytes",
-      },
-    ],
-    name: "getConfigId",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-      {
         internalType: "address",
         name: "",
         type: "address",
@@ -473,149 +369,16 @@ export const SelfVerifiedAirdropAbi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "isVerified",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes",
-        name: "output",
-        type: "bytes",
-      },
-      {
-        internalType: "bytes",
-        name: "userData",
-        type: "bytes",
-      },
-    ],
-    name: "onVerificationSuccess",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "owner",
+    name: "verificationRegistry",
     outputs: [
       {
-        internalType: "address",
+        internalType: "contract IVerificationRegistry",
         name: "",
         type: "address",
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounceOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "scope",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "configId",
-        type: "bytes32",
-      },
-    ],
-    name: "setConfigId",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "transferOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "verificationConfigId",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "verificationExpiresAt",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes",
-        name: "proofPayload",
-        type: "bytes",
-      },
-      {
-        internalType: "bytes",
-        name: "userContextData",
-        type: "bytes",
-      },
-    ],
-    name: "verifySelfProof",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

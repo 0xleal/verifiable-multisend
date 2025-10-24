@@ -9,9 +9,15 @@ export function WalletConnectButton() {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by only showing wallet state after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const buttonContent = useMemo(() => {
-    if (isConnected && address) {
+    if (mounted && isConnected && address) {
       return (
         <>
           <Wallet className="h-4 w-4" />
@@ -26,7 +32,7 @@ export function WalletConnectButton() {
         Connect Wallet
       </>
     );
-  }, [isConnected, address]);
+  }, [mounted, isConnected, address]);
 
   return (
     <Button

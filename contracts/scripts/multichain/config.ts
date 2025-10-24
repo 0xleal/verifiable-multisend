@@ -25,13 +25,15 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     name: "Celo Sepolia",
     chainId: 11142220, // Celo Sepolia chain ID
     hyperlane: {
-      mailbox: "0xEf9F292fcEBC3848bF4bB92a96a04F9ECBb78E59", // Hyperlane Mailbox on Celo Sepolia
+      mailbox: "0xD0680F80F4f947968206806C2598Cbc5b6FE5b03", // Hyperlane Mailbox on Celo Sepolia
       domain: 11155420, // Hyperlane domain ID for Celo Sepolia
     },
     selfxyz: {
       hubV2: "0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74", // Self.xyz IdentityVerificationHub on Celo Sepolia
     },
-    rpcUrl: process.env.CELO_SEPOLIA_RPC || "https://alfajores-forno.celo-testnet.org",
+    rpcUrl:
+      process.env.CELO_SEPOLIA_RPC ||
+      "https://alfajores-forno.celo-testnet.org",
   },
 
   // Base Sepolia (Destination chain)
@@ -39,7 +41,7 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     name: "Base Sepolia",
     chainId: 84532,
     hyperlane: {
-      mailbox: "0xfFAEF09B3cd11D9b20d1a19bECca54EEC2884766", // Hyperlane Mailbox on Base Sepolia
+      mailbox: "0x6966b0E55883d49BFB24539356a2f8A673E02039", // Hyperlane Mailbox on Base Sepolia
       domain: 84532, // Hyperlane domain ID for Base Sepolia
     },
     selfxyz: {
@@ -82,7 +84,7 @@ export function getNetworkConfig(networkName: string): NetworkConfig {
   const config = NETWORKS[networkName];
   if (!config) {
     throw new Error(
-      `Network ${networkName} not found. Available: ${Object.keys(NETWORKS).join(", ")}`
+      `Network ${networkName} not found. Available: ${Object.keys(NETWORKS).join(", ")}`,
     );
   }
   return config;
@@ -98,7 +100,7 @@ export function validateEnvironment() {
   if (missing.length > 0) {
     throw new Error(
       `Missing required environment variables: ${missing.join(", ")}\n` +
-        "Please set them in your .env file"
+        "Please set them in your .env file",
     );
   }
 }
@@ -125,7 +127,7 @@ export interface DeployedContracts {
  */
 export function saveDeployedAddresses(
   network: string,
-  addresses: { registry: string; multiSend: string; airdrop: string }
+  addresses: { registry: string; multiSend: string; airdrop: string },
 ) {
   const fs = require("fs");
   const path = require("path");

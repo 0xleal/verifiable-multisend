@@ -33,7 +33,7 @@ import { formatEther, parseEther } from "viem";
 import { SelfVerifiedMultiSendAbi } from "@/lib/contracts/self-verified-multisend-abi";
 import { useEffect } from "react";
 import { SelfQRcodeWrapper, SelfAppBuilder } from "@selfxyz/qrcode";
-import { celoSepolia } from "wagmi/chains";
+import { celoSepolia, baseSepolia } from "wagmi/chains";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "@/lib/wagmi-config";
 import { getVerificationChainConfig, getChainConfig } from "@/lib/chain-config";
@@ -202,19 +202,20 @@ export function DistributionExecutor({
         args: [addrs, amts],
         chainId: chain!.id,
         value,
-      } as any);
+      });
 
       _setTransactions([
         {
           address: "batch",
           amount: formatEther(value),
           status: "pending",
-          hash: txHash as string,
+          hash: txHash,
         },
       ]);
 
       const receipt = await waitForTransactionReceipt(config, {
         hash: txHash,
+        chainId: chain!.id as (typeof celoSepolia.id | typeof baseSepolia.id),
       });
 
       if (receipt.status === "success") {
@@ -297,7 +298,7 @@ export function DistributionExecutor({
           />
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
-              Leave empty to distribute native tokens (CELO)
+              Leave empty to distribute native tokens ({chain?.nativeCurrency?.symbol || "ETH"})
             </p>
           </div>
         </div>

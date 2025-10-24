@@ -23,7 +23,7 @@ import {
 import type { RecipientData } from "./csv-upload";
 import type { DistributionConfig } from "./wizard-steps/step3-configure";
 import { useAccount, useReadContract } from "wagmi";
-import { getVerificationChainConfig, getChainConfig } from "@/lib/chain-config";
+import { getVerificationChainConfig, getChainConfig, getNativeCurrencySymbol } from "@/lib/chain-config";
 
 interface DistributionJourneySummaryProps {
   recipients: RecipientData[];
@@ -44,6 +44,7 @@ export function DistributionJourneySummary({
   // Get target chain configuration
   const targetChainConfig = getChainConfig(config.chainId);
   const targetChainName = targetChainConfig?.chain.name || "Unknown";
+  const nativeCurrency = getNativeCurrencySymbol(config.chainId);
 
   const { data: expiresAt } = useReadContract({
     address: contractAddress,
@@ -99,7 +100,10 @@ export function DistributionJourneySummary({
               <div className="flex items-center justify-between">
                 <span>Total amount:</span>
                 <Badge variant="secondary" className="text-xs">
-                  {totalAmount.toLocaleString()} CELO
+                  {totalAmount.toLocaleString(undefined, {
+                    maximumFractionDigits: 18,
+                  })}{" "}
+                  {nativeCurrency}
                 </Badge>
               </div>
             </div>
@@ -198,7 +202,10 @@ export function DistributionJourneySummary({
           <p className="text-xs text-muted-foreground">
             You're all set to distribute{" "}
             <span className="font-medium text-foreground">
-              {totalAmount.toLocaleString()} tokens
+              {totalAmount.toLocaleString(undefined, {
+                maximumFractionDigits: 18,
+              })}{" "}
+              tokens
             </span>{" "}
             to{" "}
             <span className="font-medium text-foreground">

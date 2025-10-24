@@ -25,7 +25,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { celoSepolia, baseSepolia } from "wagmi/chains";
-import { SUPPORTED_CHAINS } from "@/lib/chain-config";
+import { SUPPORTED_CHAINS, getNativeCurrencySymbol } from "@/lib/chain-config";
 
 export type DistributionMode = "send" | "claim";
 export interface DistributionConfig {
@@ -256,7 +256,7 @@ export function Step3Configure({
                 placeholder="e.g., talent-q1-2025"
                 value={airdropId}
                 onChange={(e) => setAirdropId(e.target.value.toLowerCase())}
-                className="font-mono text-sm border-2"
+                className="font-mono text-sm"
                 maxLength={50}
               />
               {airdropId && !isValidAirdropId(airdropId) && (
@@ -284,7 +284,7 @@ export function Step3Configure({
                 Token Contract Address
               </Label>
               <p className="text-sm text-muted-foreground mt-1">
-                Leave empty to distribute native CELO tokens
+                Leave empty to distribute native {getNativeCurrencySymbol(chainId)} tokens
               </p>
             </div>
             <Input
@@ -292,7 +292,7 @@ export function Step3Configure({
               placeholder="0x... (Optional)"
               value={tokenAddress}
               onChange={(e) => setTokenAddress(e.target.value)}
-              className="font-mono text-sm border-2"
+              className="font-mono text-sm"
             />
           </div>
 

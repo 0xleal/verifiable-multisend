@@ -40,7 +40,7 @@ async function main() {
 
   if (balance < ethers.parseEther("0.1")) {
     console.warn(
-      "⚠️  Warning: Low balance. You may need more CELO for deployment."
+      "⚠️  Warning: Low balance. You may need more CELO for deployment.",
     );
   }
 
@@ -48,7 +48,7 @@ async function main() {
   if (!networkConfig.selfxyz.hubV2) {
     throw new Error(
       "❌ Self.xyz Hub V2 address not configured for Celo Sepolia.\n" +
-        "Please update config.ts with the correct Hub address."
+        "Please update config.ts with the correct Hub address.",
     );
   }
 
@@ -59,17 +59,19 @@ async function main() {
   console.log("\n📝 [1/3] Deploying CeloVerificationRegistry...");
 
   const CeloRegistry = await ethers.getContractFactory(
-    "CeloVerificationRegistry"
+    "CeloVerificationRegistry",
   );
   const celoRegistry = await CeloRegistry.deploy(
     networkConfig.selfxyz.hubV2,
     VERIFICATION_SCOPE_SEED,
-    networkConfig.hyperlane.mailbox
+    networkConfig.hyperlane.mailbox,
   );
   await celoRegistry.waitForDeployment();
 
   const registryAddress = await celoRegistry.getAddress();
   console.log(`✅ CeloVerificationRegistry deployed: ${registryAddress}`);
+
+  await new Promise((r) => setTimeout(r, 2000));
 
   // Set verification config ID
   if (VERIFICATION_CONFIG_ID !== ethers.ZeroHash) {
@@ -79,7 +81,7 @@ async function main() {
     console.log(`   ✓ Config ID set: ${VERIFICATION_CONFIG_ID}`);
   } else {
     console.log(
-      `   ⚠️  Warning: Using default config ID (0x0). Update config.ts with your Self.xyz config.`
+      `   ⚠️  Warning: Using default config ID (0x0). Update config.ts with your Self.xyz config.`,
     );
   }
 
@@ -120,21 +122,25 @@ async function main() {
 
   console.log(`\n🔗 Block Explorer URLs:`);
   console.log(
-    `   Registry:  https://sepolia.celoscan.io/address/${registryAddress}`
+    `   Registry:  https://sepolia.celoscan.io/address/${registryAddress}`,
   );
   console.log(
-    `   MultiSend: https://sepolia.celoscan.io/address/${multiSendAddress}`
+    `   MultiSend: https://sepolia.celoscan.io/address/${multiSendAddress}`,
   );
   console.log(
-    `   Airdrop:   https://sepolia.celoscan.io/address/${airdropAddress}`
+    `   Airdrop:   https://sepolia.celoscan.io/address/${airdropAddress}`,
   );
 
   console.log(`\n📝 Next Steps:`);
   console.log(`   1. Verify contracts on Celoscan (optional)`);
-  console.log(`   2. Deploy to Base Sepolia: npx hardhat run scripts/multichain/deploy-base.ts --network base_sepolia`);
+  console.log(
+    `   2. Deploy to Base Sepolia: npx hardhat run scripts/multichain/deploy-base.ts --network base_sepolia`,
+  );
   console.log(`   3. Configure trusted sender on Base registry`);
   console.log(`   4. Test verification: Use Self.xyz app to scan passport`);
-  console.log(`   5. Relay verification: npx hardhat run scripts/multichain/relay-verification.ts`);
+  console.log(
+    `   5. Relay verification: npx hardhat run scripts/multichain/relay-verification.ts`,
+  );
 
   // Save addresses
   saveDeployedAddresses("celoSepolia", {

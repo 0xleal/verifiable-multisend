@@ -37,7 +37,7 @@
   --destructive: #ff3333;
   --destructive-foreground: var(--terminal-bg);
   --border: var(--terminal-green-dark);
-  --input: var(--terminal-bg-light);
+  --input: var(--terminal-green-dark);
   --ring: var(--terminal-green);
   --chart-1: var(--terminal-green);
   --chart-2: #00ddff;

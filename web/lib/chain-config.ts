@@ -63,3 +63,8 @@ export function getVerificationChainConfig(): ChainConfig {
   // Always use Celo for Self verification
   return CHAIN_CONFIGS[celoSepolia.id];
 }
+
+export function getNativeCurrencySymbol(chainId: number): string {
+  const config = getChainConfig(chainId);
+  return config?.chain.nativeCurrency?.symbol || "ETH";
+}

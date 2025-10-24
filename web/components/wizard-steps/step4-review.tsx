@@ -46,7 +46,7 @@ import { config as wagmiConfig } from "@/lib/wagmi-config";
 import { DistributionJourneySummary } from "@/components/distribution-journey-summary";
 import { createMerkleTree } from "@/lib/merkle";
 import { parseUnits } from "ethers";
-import { getChainConfig } from "@/lib/chain-config";
+import { getChainConfig, getNativeCurrencySymbol } from "@/lib/chain-config";
 
 interface Step4ReviewProps {
   onBack: () => void;
@@ -81,6 +81,8 @@ export function Step4Review({
   const distributionContractAbi = targetChainConfig.distributionContractAbi;
   const airdropContractAddress = targetChainConfig.airdropContractAddress;
   const targetChainId = targetChainConfig.chain.id;
+
+  const nativeCurrency = getNativeCurrencySymbol(distributionConfig.chainId);
 
   const totalAmount = useMemo(() => {
     return recipients.reduce((sum, r) => sum + Number(r.amount), 0);
@@ -130,28 +132,39 @@ export function Step4Review({
       const value = amts.reduce((a, b) => a + b);
 
       // 4. Create airdrop on contract
-      const hash = await writeContractAsync({
-        address: airdropContractAddress,
-        abi: SelfVerifiedAirdropAbi,
-        functionName: distributionConfig.tokenAddress
-          ? "createAirdropERC20"
-          : "createAirdropETH",
-        args: distributionConfig.tokenAddress
-          ? [
-              airdropIdHash,
-              merkleData.root,
-              distributionConfig.tokenAddress,
-              value,
-            ]
-          : [airdropIdHash, merkleData.root],
-        chainId: targetChainId,
-        value: distributionConfig.tokenAddress ? undefined : value,
-      } as any);
+      let hash: `0x${string}`;
+
+      if (distributionConfig.tokenAddress) {
+        // ERC20 airdrop
+        hash = await writeContractAsync({
+          address: airdropContractAddress,
+          abi: SelfVerifiedAirdropAbi,
+          functionName: "createAirdropERC20",
+          args: [
+            airdropIdHash,
+            merkleData.root as `0x${string}`,
+            distributionConfig.tokenAddress as `0x${string}`,
+            value,
+          ],
+          chainId: targetChainId,
+        });
+      } else {
+        // ETH airdrop
+        hash = await writeContractAsync({
+          address: airdropContractAddress,
+          abi: SelfVerifiedAirdropAbi,
+          functionName: "createAirdropETH",
+          args: [airdropIdHash, merkleData.root as `0x${string}`],
+          chainId: targetChainId,
+          value: value,
+        });
+      }
 
       setTxHash(hash);
 
       const receipt = await waitForTransactionReceipt(wagmiConfig, {
         hash,
+        chainId: targetChainId,
       });
 
       if (receipt.status === "success") {
@@ -247,12 +260,13 @@ export function Step4Review({
         args: [addrs, amts],
         chainId: targetChainId,
         value,
-      } as any);
+      });
 
       setTxHash(hash);
 
       const receipt = await waitForTransactionReceipt(wagmiConfig, {
         hash,
+        chainId: targetChainId,
       });
 
       if (receipt.status === "success") {
@@ -340,7 +354,10 @@ export function Step4Review({
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Total Amount</span>
                   <span className="font-semibold">
-                    {totalAmount.toLocaleString()} CELO
+                    {totalAmount.toLocaleString(undefined, {
+                      maximumFractionDigits: 18,
+                    })}{" "}
+                    {nativeCurrency}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -420,7 +437,10 @@ export function Step4Review({
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Total Distributed</span>
                 <span className="font-semibold">
-                  {totalAmount.toLocaleString()} CELO
+                  {totalAmount.toLocaleString(undefined, {
+                    maximumFractionDigits: 18,
+                  })}{" "}
+                  {nativeCurrency}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
@@ -525,10 +545,12 @@ export function Step4Review({
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {totalAmount.toLocaleString()}
+                  {totalAmount.toLocaleString(undefined, {
+                    maximumFractionDigits: 18,
+                  })}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  CELO tokens
+                  {nativeCurrency} tokens
                 </p>
               </CardContent>
             </Card>
@@ -572,7 +594,7 @@ export function Step4Review({
                       <TableHead className="w-12">#</TableHead>
                       <TableHead>Wallet Address</TableHead>
                       <TableHead className="text-right">
-                        Amount (CELO)
+                        Amount ({nativeCurrency})
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -623,8 +645,13 @@ export function Step4Review({
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="text-sm">
               You're about to distribute{" "}
-              <strong>{totalAmount.toLocaleString()} CELO</strong> to{" "}
-              <strong>{recipients.length}</strong>{" "}
+              <strong>
+                {totalAmount.toLocaleString(undefined, {
+                  maximumFractionDigits: 18,
+                })}{" "}
+                {nativeCurrency}
+              </strong>{" "}
+              to <strong>{recipients.length}</strong>{" "}
               {recipients.length === 1 ? "recipient" : "recipients"}. Please
               ensure you have enough balance to cover the total amount plus gas
               fees.
