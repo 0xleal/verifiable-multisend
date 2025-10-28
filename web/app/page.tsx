@@ -30,10 +30,10 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-wider">
-                &gt; VERIFIABLE_MULTISEND
+                &gt; HumanPay
               </h1>
               <p className="text-xs text-muted-foreground font-mono">
-                [COMPLIANT_TOKEN_DISTRIBUTION_v1.0]
+                [COMPLIANT_TOKEN_OPS_v1.0]
               </p>
             </div>
           </div>
@@ -58,7 +58,7 @@ export default function Home() {
             [OPEN_SOURCE] • POWERED_BY_SELF_PROTOCOL
           </Badge>
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-balance terminal-glow">
-            COMPLIANT_TOKEN_DISTRIBUTION
+            COMPLIANT_TOKEN_OPS
             <br />
             <span className="text-primary">WITH_ZERO_KNOWLEDGE_IDENTITY</span>
           </h2>
@@ -143,7 +143,7 @@ export default function Home() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
-              <Card className="border-2 border-primary/30 bg-card/80 shadow-[4px_4px_0_rgba(255,176,0,0.3)]">
+              <Card className="border-2 border-primary/30 bg-card/80 shadow-[4px_4px_0_rgba(255,176,0,0.15)]">
                 <CardHeader>
                   <Shield className="h-10 w-10 text-primary mb-2" />
                   <CardTitle className="font-mono tracking-wide">
@@ -157,7 +157,7 @@ export default function Home() {
                 </CardHeader>
               </Card>
 
-              <Card className="border-2 border-primary/30 bg-card/80 shadow-[4px_4px_0_rgba(255,176,0,0.3)]">
+              <Card className="border-2 border-primary/30 bg-card/80 shadow-[4px_4px_0_rgba(255,176,0,0.15)]">
                 <CardHeader>
                   <Lock className="h-10 w-10 text-primary mb-2" />
                   <CardTitle className="font-mono tracking-wide">
@@ -171,7 +171,7 @@ export default function Home() {
                 </CardHeader>
               </Card>
 
-              <Card className="border-2 border-primary/30 bg-card/80 shadow-[4px_4px_0_rgba(255,176,0,0.3)]">
+              <Card className="border-2 border-primary/30 bg-card/80 shadow-[4px_4px_0_rgba(255,176,0,0.15)]">
                 <CardHeader>
                   <CheckCircle2 className="h-10 w-10 text-primary mb-2" />
                   <CardTitle className="font-mono tracking-wide">
@@ -419,7 +419,7 @@ export default function Home() {
       {/* CTA Section */}
       <section className="bg-primary/10 border-y-2 border-primary py-16 md:py-24 terminal-grid">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center space-y-6 border-4 border-primary p-8 bg-card shadow-[8px_8px_0_rgba(255,176,0,0.3)]">
+          <div className="max-w-2xl mx-auto text-center space-y-6 border-4 border-primary p-8 bg-card shadow-[8px_8px_0_rgba(255,176,0,0.15)]">
             <div className="text-primary text-lg font-mono">
               &gt;&gt;&gt; SYSTEM_READY
             </div>
@@ -458,7 +458,7 @@ export default function Home() {
                   <Coins className="h-5 w-5 text-primary" />
                 </div>
                 <span className="font-bold font-mono tracking-wider">
-                  VERIFIABLE_MULTISEND
+                  HumanPay
                 </span>
               </div>
               <p className="text-sm text-muted-foreground font-mono">

@@ -148,24 +148,6 @@
     animation: flicker 0.15s infinite;
   }
 
-  /* Text glow effect */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    text-shadow:
-      0 0 8px var(--terminal-green),
-      0 0 12px var(--terminal-green);
-  }
-
-  /* Stronger glow for primary elements */
-  .text-primary,
-  button,
-  a {
-    text-shadow: 0 0 6px var(--terminal-green);
-  }
 }
 
 /* Retro CRT animations */
@@ -283,15 +265,12 @@
 .terminal-border {
   border: 2px solid var(--terminal-green-dark);
   box-shadow:
-    0 0 10px rgba(var(--terminal-glow-rgb), 0.3),
-    inset 0 0 10px rgba(var(--terminal-glow-rgb), 0.1);
+    0 0 6px rgba(var(--terminal-glow-rgb), 0.15),
+    inset 0 0 6px rgba(var(--terminal-glow-rgb), 0.05);
 }
 
 .terminal-glow {
-  text-shadow:
-    0 0 8px var(--terminal-green),
-    0 0 12px var(--terminal-green),
-    0 0 16px var(--terminal-green);
+  /* Glow removed */
 }
 
 .terminal-cursor::after {
@@ -321,7 +300,6 @@
   border: 2px solid var(--terminal-green);
   background: var(--terminal-bg-light);
   color: var(--terminal-green);
-  text-shadow: 0 0 6px var(--terminal-green);
   transition: all 0.1s;
   position: relative;
 }
